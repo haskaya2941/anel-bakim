@@ -47,7 +47,7 @@
                 <button onclick="giris()">GİRİŞ YAP</button>
             </div>
 
-            <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbxGYpmuY1Wb0STcTxWFYcM7L8KxoKRPS3XC-rKi7s0qXQL5tiGqIh68PAtih_n0bQtS/exec" target="gizli_frame" onsubmit="return val()">
+            <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbwHu_OjHoCW5hG-lm35gqzKOPTwwVPwY6cD8TQkDogyNwxtDQzDrZsYKjqXu879pDbn/exec" target="gizli_frame" onsubmit="return val()">
                 <input type="hidden" name="Makine" id="makine_id">
                 <input type="hidden" name="Personel" id="hidden_user">
                 
@@ -156,7 +156,7 @@
             if(m_data[k] && m_data[k].length > 0) {
                 liste.innerHTML += `<div class="periyot-baslik">${k} Kontrolleri</div>`;
                 m_data[k].forEach((m, i) => {
-                    liste.innerHTML += `<div class="item"><input type="checkbox" name="kontroller" class="ck" value="${k}-${i+1}"><span>${m}</span></div>`;
+                    liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" value="${k}-${i+1}"><span>${m}</span></div>`;
                 });
             }
         });
