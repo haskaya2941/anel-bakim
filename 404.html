@@ -3,30 +3,37 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anel Kümülatif Bakım</title>
+    <title>Anel Bakım - Hasan Kaya</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #E0F2F1; display: flex; justify-content: center; padding: 15px; margin: 0; }
-        .card { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 6px solid #009688; }
-        .header { background: #009688; color: white; padding: 20px; text-align: center; }
+        .card { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 8px solid #009688; }
+        .header { background: #009688; color: white; padding: 25px; text-align: center; }
+        .makine-etiketi { background: #FFD600; color: #333; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; margin-top: 10px; font-size: 18px; }
         label { display: block; margin-top: 15px; font-weight: bold; color: #00796B; }
         input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
-        button { background: #009688; color: white; border: none; font-weight: bold; cursor: pointer; }
-        .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eee; }
-        input[type="checkbox"] { width: 25px; height: 25px; margin-right: 15px; accent-color: #009688; flex-shrink: 0; }
+        button { background: #009688; color: white; border: none; font-weight: bold; cursor: pointer; height: 50px; }
+        .item { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee; }
+        input[type="checkbox"] { width: 28px; height: 28px; margin-right: 15px; accent-color: #009688; flex-shrink: 0; }
         .hidden { display: none; }
-        .periyot-baslik { background: #B2DFDB; padding: 5px 10px; border-radius: 5px; font-size: 14px; margin-top: 10px; color: #00695C; font-weight: bold; }
+        .periyot-baslik { background: #B2DFDB; padding: 8px; border-radius: 5px; font-size: 14px; margin-top: 15px; color: #004D40; font-weight: bold; }
     </style>
 </head>
 <body>
 <div class="card">
     <div class="header">
-        <h2 id="m_baslik">Yükleniyor...</h2>
-        <p id="m_kod">Kontrol ediliyor</p>
+        <h2 id="m_baslik" style="margin:0;">Yükleniyor...</h2>
+        <div id="m_kod" class="makine-etiketi">Kod: ---</div>
     </div>
     <div class="content" style="padding:20px;">
         <div id="login-section">
-            <input type="text" id="p_name" placeholder="Ad Soyad">
-            <input type="password" id="pass" placeholder="Şifre">
+            <label>Personel Seçin:</label>
+            <select id="p_name">
+                <option value="Hasan Kaya">Hasan Kaya</option>
+                <option value="Sami Kaya">Sami Kaya</option>
+                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+            </select>
+            <label>Şifre:</label>
+            <input type="password" id="pass" placeholder="Şifre Giriniz">
             <button onclick="giris()">SİSTEME GİRİŞ YAP</button>
         </div>
 
@@ -44,8 +51,8 @@
 
             <div id="madde_konteynir" class="hidden">
                 <div id="madde_listesi"></div>
-                <textarea name="Notlar" rows="3" placeholder="Not/Arıza bildirimi..." style="margin-top:10px;"></textarea>
-                <button type="submit" style="margin-top:20px;">✅ TÜMÜNÜ ONAYLA VE KAYDET</button>
+                <textarea name="Notlar" rows="3" placeholder="Arıza/Not bildirimi..."></textarea>
+                <button type="submit" style="margin-top:20px;">✅ KAYDI TAMAMLA VE GÖNDER</button>
             </div>
         </form>
     </div>
@@ -62,16 +69,19 @@
             document.getElementById("m_baslik").innerText = hafiza[makineNo].ad;
             document.getElementById("m_kod").innerText = "Kod: " + makineNo;
             document.getElementById("makine_id").value = makineNo;
+        } else {
+            document.getElementById("m_baslik").innerText = "Hata!";
+            document.getElementById("m_kod").innerText = "Kod Tanımsız: " + makineNo;
         }
     };
 
     function giris() {
-        const ad = document.getElementById("p_name").value;
-        if(ad.length > 2 && document.getElementById("pass").value === "1234") {
-            document.getElementById("hidden_user").value = ad;
+        const sifre = document.getElementById("pass").value;
+        if(sifre === "1234") {
+            document.getElementById("hidden_user").value = document.getElementById("p_name").value;
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("main-form").classList.remove("hidden");
-        } else { alert("Giriş başarısız!"); }
+        } else { alert("Hatalı Şifre!"); }
     }
 
     function periyotDegisti() {
@@ -79,19 +89,17 @@
         const liste = document.getElementById("madde_listesi");
         const konteynir = document.getElementById("madde_konteynir");
         liste.innerHTML = "";
-
         if (!secilen) { konteynir.classList.add("hidden"); return; }
         konteynir.classList.remove("hidden");
 
         const m_data = hafiza[makineNo];
-        // KÜMÜLATİF MANTIK:
         const eklenecekler = ["Günlük"];
         if(secilen === "Haftalık") eklenecekler.push("Haftalık");
         if(secilen === "Aylık") eklenecekler.push("Haftalık", "Aylık");
 
         eklenecekler.forEach(p => {
             if(m_data[p] && m_data[p].length > 0) {
-                liste.innerHTML += `<div class="periyot-baslik">${p} Bakım Maddeleri</div>`;
+                liste.innerHTML += `<div class="periyot-baslik">${p} Bakım Kontrolleri</div>`;
                 m_data[p].forEach((m, idx) => {
                     liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" name="Yapilan_Islemler" value="${p}-${idx+1}"><span>${m}</span></div>`;
                 });
@@ -102,10 +110,10 @@
     function val() {
         const checks = document.querySelectorAll('.ck');
         if (checks.length > 0 && !Array.from(checks).every(c => c.checked)) {
-            alert("⚠️ HATA: Seçilen periyodun ve alt periyotların TÜM maddelerini işaretlemek zorunludur!");
+            alert("⚠️ UYARI: Listelenen TÜM maddeleri işaretlemeden kayıt yapılamaz!");
             return false;
         }
-        alert("✅ Kayıt Tabloya İşlendi!");
+        alert("✅ Bakım Kaydı Başarıyla Gönderildi!");
         setTimeout(() => { location.reload(); }, 1500);
         return true;
     }
