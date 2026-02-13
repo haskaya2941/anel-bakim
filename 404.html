@@ -2,73 +2,78 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anel Bakım Sistemi</title>
+    <title>Anel Bakım Sistemi V47</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #E0F2F1; display: flex; justify-content: center; padding: 15px; margin: 0; }
         .card { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 8px solid #009688; }
-        .header { background: #009688; color: white; padding: 20px; text-align: center; }
-        .etiket { background: #FFD600; color: #333; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; display:inline-block; margin-top:5px; }
-        select, input, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        button { background: #009688; color: white; font-weight: bold; cursor: pointer; }
+        .header { background: #009688; color: white; padding: 20px; text-align: center; transition: 0.3s; }
+        .etiket { background: #FFD600; color: #333; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; display:inline-block; margin-top:5px; word-break: break-all; }
+        select, input, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size:16px; }
+        button { background: #009688; color: white; font-weight: bold; cursor: pointer; height:50px; }
+        button:hover { background: #00796B; }
         .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eee; }
         input[type="checkbox"] { width: 25px; height: 25px; margin-right: 10px; flex-shrink: 0; }
         .hidden { display: none; }
         .periyot-baslik { background: #B2DFDB; padding: 8px; border-radius: 5px; font-size: 14px; margin-top: 15px; color: #004D40; font-weight: bold; }
-        #manuel-kutu { background: #FFF3E0; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #FFB74D; display:none; }
+        
+        /* HATA / SEÇİM KUTUSU */
+        #manuel-alan { background: #FFF3E0; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #FFB74D; display: none; }
     </style>
 </head>
 <body>
 <div class="card">
-    <div class="header">
-        <h2 id="m_baslik" style="margin:0; font-size:18px;">BAKIM SİSTEMİ</h2>
-        <div id="m_kod" class="etiket">Makine Seçiniz</div>
+    <div class="header" id="ana-baslik">
+        <h2 id="m_baslik" style="margin:0; font-size:18px;">MAKİNE ARANIYOR...</h2>
+        <div id="m_kod" class="etiket">---</div>
     </div>
     <div class="content" style="padding:20px;">
         
-        <div id="manuel-kutu">
-            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100;">⚠️ Makine otomatik tanınamadı.</p>
-            <p style="font-size:13px;">Lütfen listeden seçin:</p>
+        <div id="manuel-alan">
+            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100; font-weight:bold;">⚠️ Makine Otomatik Bulunamadı</p>
+            <p style="font-size:13px; margin:0;">Lütfen listeden manuel seçiniz:</p>
             <select id="manuel-secim" onchange="manuelSec()">
-                <option value="">Listeden Seçiniz...</option>
+                <option value="">Seçiniz...</option>
             </select>
         </div>
 
-        <div id="ana-ekran" class="hidden">
-            <div id="login-section">
-                <label>Personel:</label>
-                <select id="p_name">
-                    <option value="Hasan Kaya">Hasan Kaya</option>
-                    <option value="Sami Kaya">Sami Kaya</option>
-                    <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
-                    <option value="Operatör">Operatör</option>
-                </select>
-                <input type="number" id="pass" placeholder="Şifre (1234)">
-                <button onclick="giris()">GİRİŞ YAP</button>
+        <div id="login-section" class="hidden">
+            <label style="font-weight:bold; color:#00796B;">Personel Seçiniz:</label>
+            <select id="p_name">
+                <option value="Hasan Kaya">Hasan Kaya</option>
+                <option value="Sami Kaya">Sami Kaya</option>
+                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+                <option value="Operatör">Operatör</option>
+            </select>
+            <input type="number" id="pass" placeholder="Şifre (1234)">
+            <button onclick="giris()" style="margin-top:15px;">GİRİŞ YAP</button>
+        </div>
+
+        <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbyUBmqtWUdCGIXp6WXEBuUkqwWhN5W38K7q1prjb-zKaHr7dr4Pyoc8Hxh9K_rYmjT3/exec" target="gizli_frame" onsubmit="return val()">
+            <input type="hidden" name="Makine" id="makine_id">
+            <input type="hidden" name="Personel" id="hidden_user">
+            
+            <div style="background:#E0F7FA; padding:10px; border-radius:5px; margin-top:10px; border-left:5px solid #00BCD4;">
+                <h3 style="margin:0; color:#006064; font-size:16px;">Bakım Başlıyor</h3>
             </div>
 
-            <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbyOWX0tEiEqY7mpECAVlL7jvC8vmAzCc2Pw4-tTKIUW5RKZ8sGvtQelqN7SUDZRmDPY/exec" target="gizli_frame" onsubmit="return val()">
-                <input type="hidden" name="Makine" id="makine_id">
-                <input type="hidden" name="Personel" id="hidden_user">
-                
-                <label style="font-weight:bold;">Bakım Periyodu:</label>
-                <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
-                    <option value="">Seçiniz...</option>
-                    <option value="Günlük">Günlük Bakım</option>
-                    <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
-                    <option value="Aylık">Aylık Bakım (+Haftalık+Günlük)</option>
-                    <option value="3 Aylık">3 Aylık (+Tümü)</option>
-                    <option value="6 Aylık">6 Aylık (+Tümü)</option>
-                    <option value="Yıllık">Yıllık (+Tümü)</option>
-                </select>
+            <label style="font-weight:bold; margin-top:15px; display:block;">Periyot:</label>
+            <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
+                <option value="">Seçiniz...</option>
+                <option value="Günlük">Günlük Bakım</option>
+                <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
+                <option value="Aylık">Aylık Bakım (+Haftalık+Günlük)</option>
+                <option value="3 Aylık">3 Aylık (+Tümü)</option>
+                <option value="6 Aylık">6 Aylık (+Tümü)</option>
+                <option value="Yıllık">Yıllık (+Tümü)</option>
+            </select>
 
-                <div id="madde_konteynir" class="hidden">
-                    <div id="madde_listesi"></div>
-                    <label style="font-weight:bold; margin-top:15px; display:block;">Notlar / Arıza:</label>
-                    <textarea name="Notlar" rows="3" placeholder="Varsa notunuz..."></textarea>
-                    <button type="submit" style="margin-top:15px;">✅ KAYDET</button>
-                </div>
-            </form>
-        </div>
+            <div id="madde_konteynir" class="hidden">
+                <div id="madde_listesi"></div>
+                <label style="font-weight:bold; margin-top:15px; display:block;">Notlar:</label>
+                <textarea name="Notlar" rows="3" placeholder="Varsa notunuz..."></textarea>
+                <button type="submit" style="margin-top:20px; background:#D32F2F;">✅ KAYDET</button>
+            </div>
+        </form>
     </div>
 </div>
 <iframe name="gizli_frame" style="display:none;"></iframe>
@@ -77,11 +82,13 @@
     // --- VERİ HAVUZU ---
     const hafiza = {"S-APR.A33.025": {"ad": "4'lü Yüzey İkaz Lambası (VBE) Kapak Çakma Apr.", "Günlük": [], "Haftalık": [], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}, "S-APR.A33.174": {"ad": "Dometic Gövde Terminal Çakma Aparatı", "Günlük": [], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Fikstür yuvası, piston ucu ve itici pimler çapaklardan temizlenir.", "Sistem çalışma basıncı (Bar) ve şartlandırıcı yağ seviyesi kontrol edilir."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Çift el butonu, pedal ve güvenlik sensörleri (Safety) test edilir.", "Hareketli mil, kılavuz burçlar ve sütunlar gres ile yağlanır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Strok (derinlik) ayarı ve sensör (Anahtar/Switch) pozisyonları kontrol edilir.", "Pnömatik hortum ve rekorlarda hava kaçağı/ezilme kontrolü yapılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Fikstür blokları ve alt tabla cıvatalarının tork (sıkılık) kontrolü yapılır.", "İtici uçlarda (Push rod) eğilme, çatlak veya aşınma kontrolü yapılır."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Silindir içi keçe ve sızdırmazlık elemanlarının ömür kontrolü yapılır.", "Mekanik gövde paralelliği ve eksen hizalaması (Alignment) kontrol edilir."]}, "S-APR.A35.029": {"ad": "Kablolu Sinyal Lambası K.C.", "Günlük": ["YOK", "YOK"], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Soket yuvasına hava tutulur, içindeki tozlar temizlenir.", "Soket yayları kontrol edilir (Lambayı iyi kavrıyor mu?)."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Temas pimlerinde (iğnelerde) kararma/eğilme kontrolü yapılır.", "Elektrik kablosu ve fişinde hasar kontrolü yapılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Butonlar ve açma-kapama düğmesi kontrol edilir.", "İkaz ışıklarının (Geçti/Kaldı) çalışıp çalışmadığına bakılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Cihazın dış temizliği yapılır, etiketler okunur mu bakılır.", "Test yuvası aşınmışsa değiştirilmesi önerilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Sağlam numune (Master) ile doğrulama testi yapılır.", "Cihaz içi temizlik ve bağlantı kontrolü yapılır."]}, "S-APR.A35.034": {"ad": "Kablolu Sinyal Lambası K.C.", "Günlük": ["YOK", "YOK"], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Soket yuvasına hava tutulur, içindeki tozlar temizlenir.", "Soket yayları kontrol edilir (Lambayı iyi kavrıyor mu?)."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Temas pimlerinde (iğnelerde) kararma/eğilme kontrolü yapılır.", "Elektrik kablosu ve fişinde hasar kontrolü yapılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Butonlar ve açma-kapama düğmesi kontrol edilir.", "İkaz ışıklarının (Geçti/Kaldı) çalışıp çalışmadığına bakılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Cihazın dış temizliği yapılır, etiketler okunur mu bakılır.", "Test yuvası aşınmışsa değiştirilmesi önerilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Sağlam numune (Master) ile doğrulama testi yapılır.", "Cihaz içi temizlik ve bağlantı kontrolü yapılır."]}, "S-APR.A35.038": {"ad": "Elektronik Paralel Direnç Kont. Cihazı", "Günlük": ["YOK", "YOK"], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Soket yuvasına hava tutulur, içindeki tozlar temizlenir.", "Soket yayları kontrol edilir (Lambayı iyi kavrıyor mu?)."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Temas pimlerinde (iğnelerde) kararma/eğilme kontrolü yapılır.", "Elektrik kablosu ve fişinde hasar kontrolü yapılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Butonlar ve açma-kapama düğmesi kontrol edilir.", "İkaz ışıklarının (Geçti/Kaldı) çalışıp çalışmadığına bakılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Cihazın dış temizliği yapılır, etiketler okunur mu bakılır.", "Test yuvası aşınmışsa değiştirilmesi önerilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Sağlam numune (Master) ile doğrulama testi yapılır.", "Cihaz içi temizlik ve bağlantı kontrolü yapılır."]}, "S-KE005.13.004": {"ad": "500 Newton Dinamometre", "Günlük": [], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Ölçüm ucu dişleri temizlenir ve bağlantı sıkılığı kontrol edilir.", "Cihazın sıfır (Zero) noktasında kararlılığı (Drift) kontrol edilir."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Cihaz gövde vidaları ve ekran sağlamlığı kontrol edilir.", "Ölçüm milinde (Shaft) yamulma/eksen kaçıklığı var mı bakılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Master ağırlık (Örn: 50N/5kg) ile ara doğrulama testi yapılır.", "Tuş takımı ve menü fonksiyonları test edilir."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Batarya yuvası ve pil temas noktaları korozyona karşı temizlenir.", "Aşırı yük (Overload) koruma sınırları (Stand varsa) kontrol edilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Akredite Kalibrasyon (Doğrulama) işlemi yapılır.", "Load Cell (Yük hücresi) elektronik sinyal testi yapılır."]}};
     
-    // --- QR KOD EŞLEŞTİRMELERİ (120 = KOD) ---
-    const qrMap = {"1": "S-APR.A33.025", "2": "S-APR.A33.174", "3": "S-APR.A35.029", "4": "S-APR.A35.034", "5": "S-APR.A35.038", "6": "S-APR.A35.038.001", "7": "S-APR.A35.038.002", "8": "S-APR.A35.038.003", "9": "S-APR.A35.038.004", "10": "S-APR.A35.038.007", "11": "S-APR.A35.038.008", "12": "S-APR.A35.038.009", "13": "S-APR.A35.038.012", "14": "S-APR.A35.038.013", "15": "S-APR.A35.042", "16": "S-APR.A35.043", "17": "S-APR.A35.045", "18": "S-APR.A35.046", "19": "S-APR.A35.051", "20": "S-APR.A35.051.003", "21": "S-APR.A35.052", "22": "S-APR.A35.054", "23": "S-APR.AD3.001", "24": "S-APR.AD5.001", "25": "S-APR.AD5.003", "26": "S-APR.AD5.011.01", "27": "S-APR.AE5.001", "28": "S-KE005.13.004", "29": "S-KE206.03.002", "30": "S-KE206.03.001", "31": "S-KE206.03.006", "32": "S-KE206.03.007", "33": "S-KE206.03.010", "34": "S-KE206.03.011", "35": "S-KE206.03.015", "36": "S-KE206.03.013", "37": "S-MKN.A01.01.01", "38": "S-MKN.A01.01.03", "39": "S-MKN.A01.01.04", "40": "S-MKN.A01.01.06", "41": "S-MKN.A01.01.07", "42": "S-MKN.A01.01.08", "43": "S-MKN.A01.01.09", "44": "S-MKN.A01.01.10", "45": "S-MKN.A01.01.11", "46": "S-MKN.A01.01.12", "47": "S-MKN.A01.01.13", "48": "S-MKN.A01.01.14", "49": "S-MKN.A01.01.16", "50": "S-MKN.A01.01.17", "51": "S-MKN.A01.01.18", "52": "S-MKN.A01.01.19", "53": "S-MKN.A01.01.20", "54": "S-MKN.A01.01.21", "55": "S-MKN.A01.01.27", "56": "S-MKN.A01.01.29", "57": "S-MKN.A01.01.30", "58": "S-MKN.A01.01.32", "59": "S-MKN.A01.01.33", "60": "S-MKN.A01.01.34", "61": "S-MKN.A01.01.35", "62": "S-MKN.A01.01.36", "63": "S-MKN.A01.02.01", "64": "S-MKN.A01.02.03.07", "65": "S-MKN.A01.02.04", "66": "S-MKN.A01.02.06", "67": "S-MKN.A01.02.07", "68": "S-MKN.A01.02.08", "69": "S-MKN.A01.02.09", "70": "S-MKN.A01.02.10", "71": "S-MKN.A01.02.11", "72": "S-MKN.A01.02.12", "73": "S-MKN.A01.02.13", "74": "S-MKN.A01.02.14", "75": "S-MKN.A01.02.15", "76": "S-MKN.A01.02.16", "77": "S-MKN.A01.02.17", "78": "S-MKN.A01.02.18", "79": "S-MKN.A01.03.01", "80": "S-MKN.A01.03.02", "81": "S-MKN.A01.04.05", "82": "S-MKN.A01.04.08", "83": "S-MKN.A01.04.10", "84": "S-MKN.A01.04.11", "85": "S-MKN.A01.04.12", "86": "S-MKN.A01.04.13", "87": "S-MKN.A01.04.14", "88": "S-MKN.A01.05.01", "89": "S-MKN.A01.06.01", "90": "S-MKN.A01.06.02", "91": "S-MKN.A01.06.05", "92": "S-MKN.A01.06.06", "93": "S-MKN.A01.06.10", "94": "S-MKN.A01.07.02", "95": "S-MKN.A01.07.04", "96": "S-MKN.A01.07.05", "97": "S-MKN.A01.07.06", "98": "S-MKN.A01.07.07", "99": "S-MKN.A01.07.08", "100": "S-MKN.A01.07.10", "101": "S-MKN.A01.08.03", "102": "S-MKN.A01.08.04", "103": "S-MKN.A01.08.05", "104": "S-MKN.A01.08.07", "105": "S-MKN.A01.08.09", "106": "S-MKN.A01.08.11", "107": "S-MKN.A01.08.12", "108": "S-MKN.A01.08.13", "109": "S-MKN.A01.08.14", "110": "S-MKN.A01.08.15", "111": "S-MKN.A01.08.18", "112": "S-MKN.A01.08.23", "113": "S-MKN.A01.10.01", "114": "S-MKN.A01.13.01", "115": "S-MKN.A01.14.01", "116": "S-MKN.A01.11.01", "117": "S-MKN.A01.11.04", "118": "S-MKN.A01.11.05", "119": "S-MKN.A01.11.06", "120": "S-MKN.A01.11.09", "121": "S-MKN.A01.11.10", "122": "S-MKN.A01.11.02", "123": "S-MKN.A01.12.01", "124": "S-MKN.A02.01.01", "125": "S-MKN.A02.01.02", "126": "S-MKN.A02.01.03", "127": "S-MKN.A02.01.04", "128": "S-MKN.A02.01.05", "129": "S-MKN.A02.01.06", "130": "S-MKN.A02.01.12", "131": "S-MKN.A02.01.14", "132": "S-MKN.A02.01.15", "133": "S-MKN.A02.01.16", "134": "S-MKN.A02.01.17", "135": "S-MKN.A02.01.18", "136": "S-MKN.A02.01.19", "137": "S-MKN.A02.01.20", "138": "S-MKN.A02.01.21", "139": "S-MKN.A02.02.01", "140": "S-MKN.A02.03.02", "141": "S-MKN.A02.03.03", "142": "S-MKN.A02.03.04", "143": "S-MKN.A02.03.05", "144": "S-MKN.A02.03.06", "145": "S-MKN.A02.03.07", "146": "S-MKN.A02.03.08", "147": "S-MKN.A02.03.10", "148": "S-MKN.A02.03.11", "149": "S-MKN.A02.03.12", "150": "S-MKN.A02.03.13", "151": "S-MKN.A02.03.14", "152": "S-MKN.A02.03.15", "153": "S-MKN.A02.03.16", "154": "S-MKN.A02.03.17", "155": "S-MKN.A02.03.19", "156": "S-MKN.A02.03.23", "157": "S-MKN.A02.03.24", "158": "S-MKN.A02.03.25", "159": "S-MKN.A02.03.26", "160": "S-MKN.A02.03.27", "161": "S-MKN.A02.03.28", "162": "S-MKN.A02.03.29", "163": "S-MKN.A02.03.30", "164": "S-MKN.A02.03.31", "165": "S-MKN.A02.03.32", "166": "S-MKN.A02.03.33", "167": "S-MKN.A02.03.34", "168": "S-MKN.A02.03.37", "169": "S-MKN.A02.03.38", "170": "S-MKN.A02.03.39", "171": "S-MKN.A02.03.40", "172": "S-MKN.A02.03.41", "173": "S-MKN.A02.03.42", "174": "S-MKN.A02.03.52", "175": "S-MKN.A02.03.53", "176": "S-MKN.A02.03.54", "177": "S-MKN.A02.03.56", "178": "S-MKN.A02.03.59", "179": "S-MKN.A02.04.02", "180": "S-MKN.A02.04.05", "181": "S-MKN.A02.04.07", "182": "S-MKN.A02.04.08", "183": "S-MKN.A02.04.09", "184": "S-MKN.A02.04.10", "185": "S-MKN.A02.04.12", "186": "S-MKN.A02.04.15", "187": "S-MKN.A02.04.19", "188": "S-MKN.A02.04.20", "189": "S-MKN.A02.04.21", "190": "S-MKN.A02.04.23", "191": "S-MKN.A02.04.22", "192": "S-MKN.A02.04.25", "193": "S-MKN.A02.04.27", "194": "S-MKN.A02.08.01", "195": "S-MKN.A02.05.08", "196": "S-MKN.A02.05.09", "197": "S-MKN.A02.05.11", "198": "S-MKN.A02.05.12", "199": "S-MKN.A04.02.12", "200": "S-MKN.A04.02.44", "201": "S-MKN.A04.04.01", "202": "S-MKN.A04.04.08", "203": "S-MKN.A04.04.04", "204": "S-MKN.A04.04.12", "205": "S-MKN.A04.04.14", "206": "S-MKN.A04.05.10", "207": "S-MKN.A04.10.05", "208": "S-MKN.A04.10.06", "209": "S-MKN.A05.01.01", "210": "S-MKN.A05.01.02", "211": "S-MKN.A05.01.03", "212": "S-MKN.A05.01.09", "213": "S-MKN.A05.02.01", "214": "S-MKN.A05.02.02", "215": "S-MKN.A05.02.03", "216": "S-MKN.A05.05.02", "217": "S-MKN.A05.05.03", "218": "S-MKN.A05.05.19", "219": "S-MKN.A05.05.30", "220": "S-MKN.A05.05.21", "221": "S-MKN.A05.05.24", "222": "S-MKN.A05.05.25", "223": "S-MKN.A05.05.26", "224": "S-MKN.A05.05.27", "225": "S-MKN.A05.05.28", "226": "S-MKN.A05.05.29", "227": "S-MKN.A05.05.31", "228": "S-MKN.A05.03.01", "229": "S-MKN.A06.01.01", "230": "S-MKN.A06.03.03", "231": "S-MKN.A06.03.04", "232": "S-MKN.A06.03.07", "233": "S-MKN.A06.03.09", "234": "S-MKN.A06.04.01", "235": "S-MKN.A06.04.02", "236": "S-MKN.A07.04.24", "237": "S-MKN.A08.01.01", "238": "S-MKN.A08.01.02", "239": "S-MKN.A08.01.05", "240": "S-MKN.A08.01.06", "241": "S-MKN.A08.03.01", "242": "S-MKN.A08.03.02", "243": "S-MKN.A08.03.05", "244": "S-MKN.A08.03.07", "245": "S-MKN.A08.03.08", "246": "S-MKN.A08.03.09", "247": "S-MKN.A08.03.10", "248": "S-MKN.A08.03.11", "249": "S-MKN.A08.03.12", "250": "S-MKN.A08.03.13", "251": "S-MKN.A08.04.01", "252": "S-MKN.A08.04.02", "253": "S-MKN.A08.04.03", "254": "S-MKN.A08.04.04", "255": "S-MKN.A09.01.01", "256": "S-MKN.A09.02.01", "257": "S-MKN.A09.03.01", "258": "S-MKN.A09.03.02", "259": "S-MKN.A09.03.03", "260": "S-MKN.A09.04.01", "261": "S-MKN.A09.05.01", "262": "S-MKN.A09.05.02", "263": "S-MKN.A09.05.03", "264": "S-MKN.A09.07.01", "265": "S-MKN.A09.08.01", "266": "S-MKN.M01.08.02"}; // "1": "S-APR..."
+    // --- QR KOD EŞLEŞTİRME ---
+    const qrMap = {"1": "S-APR.A33.025", "2": "S-APR.A33.174", "3": "S-APR.A35.029", "4": "S-APR.A35.034", "5": "S-APR.A35.038", "28": "S-KE005.13.004",
+                   "120": "S-APR.A33.025" // ÖRNEK TEST İÇİN
+                  }; 
     
     window.onload = function() {
-        // LİSTEYİ DOLDUR
+        // Listeyi dolduralım (Yedek olarak dursun)
         const select = document.getElementById("manuel-secim");
         Object.keys(hafiza).sort().forEach(key => {
             let opt = document.createElement("option");
@@ -90,37 +97,47 @@
             select.appendChild(opt);
         });
 
-        // URL'DEN GELEN "120" DEĞERİNİ AL
+        // URL'den kodu al
         let shortCode = window.location.pathname.split("/").pop().replace(".html", "").replace(/%20/g, " ").trim();
         let upperCode = shortCode.toUpperCase();
         
         let targetCode = "";
 
-        // 1. ÖNCE HARİTAYA BAK (120 -> S-APR... mi?)
+        // Eşleştirme Kontrolü
         if (qrMap[shortCode]) targetCode = qrMap[shortCode];
         if (!targetCode && qrMap[upperCode]) targetCode = qrMap[upperCode];
-
-        // 2. SONRA DİREKT KODA BAK (S-APR... mi?)
         if (!targetCode && hafiza[upperCode]) targetCode = upperCode;
         
-        // 3. EŞLEŞME VARSA AÇ, YOKSA MANUEL KUTUYU GÖSTER
+        // --- KARAR ANI ---
         if (targetCode) {
+            // QR OKUNDU -> Direkt Makineyi Yükle ve Girişi Aç
             makineYukle(targetCode);
         } else {
-            // VARSAYILAN: Manuel seçim kutusu zaten HTML'de 'hidden' olarak ayarlı değilse görünür.
-            // Ama biz JS ile kontrol ediyoruz.
-            // Eğer URL'de bir kod yoksa, manuel kutuyu aç.
-            document.getElementById("manuel-kutu").style.display = "block";
+            // QR BULUNAMADI -> Manuel Listeyi Göster
+            document.getElementById("ana-baslik").style.background = "#D32F2F"; // Kırmızı başlık
+            document.getElementById("m_baslik").innerText = "MAKİNE TANINMADI";
+            document.getElementById("m_kod").innerText = "Lütfen Elle Seçin";
+            document.getElementById("manuel-alan").style.display = "block"; // Manuel kutuyu aç
         }
     };
 
     function makineYukle(kod) {
+        if (!hafiza[kod]) return;
+
         const veri = hafiza[kod];
+        // 1. Başlıkları Güncelle
         document.getElementById("m_baslik").innerText = veri.ad;
         document.getElementById("m_kod").innerText = kod;
         document.getElementById("makine_id").value = kod;
-        document.getElementById("manuel-kutu").style.display = "none";
-        document.getElementById("ana-ekran").classList.remove("hidden");
+        
+        // 2. Başlık Rengini Yeşil Yap (Onay Hissi)
+        document.getElementById("ana-baslik").style.background = "#2E7D32";
+
+        // 3. Manuel Seçimi Gizle (Gerek kalmadı)
+        document.getElementById("manuel-alan").style.display = "none";
+
+        // 4. Giriş Ekranını Aç (İşte istediğin bu!)
+        document.getElementById("login-section").classList.remove("hidden");
     }
 
     function manuelSec() {
@@ -131,6 +148,7 @@
     function giris() {
         if(document.getElementById("pass").value === "1234") {
             document.getElementById("hidden_user").value = document.getElementById("p_name").value;
+            // Girişi gizle, Formu aç
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("main-form").classList.remove("hidden");
         } else { alert("Hatalı Şifre!"); }
@@ -159,7 +177,6 @@
             if(m_data[k] && m_data[k].length > 0) {
                 liste.innerHTML += `<div class="periyot-baslik">${k} Kontrolleri</div>`;
                 m_data[k].forEach((m, i) => {
-                    // DÜZELTME BURADA YAPILDI: 'name' eklendi!
                     liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" name="Yapilan_Islemler" value="[${k}] ${m}"><span>${m}</span></div>`;
                 });
             }
@@ -169,10 +186,10 @@
     function val() {
         const cks = document.querySelectorAll(".ck");
         if(cks.length > 0 && !Array.from(cks).every(c=>c.checked)) {
-            alert("⚠️ Tüm maddeleri işaretlemelisiniz!"); return false;
+            alert("⚠️ Lütfen tüm maddeleri işaretleyin!"); return false;
         }
-        alert("✅ Kayıt Gönderildi!");
-        setTimeout(()=>location.reload(), 1500);
+        alert("✅ Kayıt Gönderiliyor...");
+        setTimeout(()=>location.reload(), 2000);
         return true;
     }
 </script>
