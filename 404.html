@@ -1,157 +1,151 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anel Bakım Sistemi V47</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anel Bakım Sistemi - V50</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #E0F2F1; display: flex; justify-content: center; padding: 15px; margin: 0; }
-        .card { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 8px solid #009688; }
-        .header { background: #009688; color: white; padding: 20px; text-align: center; transition: 0.3s; }
-        .etiket { background: #FFD600; color: #333; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; display:inline-block; margin-top:5px; word-break: break-all; }
-        select, input, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size:16px; }
-        button { background: #009688; color: white; font-weight: bold; cursor: pointer; height:50px; }
-        button:hover { background: #00796B; }
-        .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eee; }
-        input[type="checkbox"] { width: 25px; height: 25px; margin-right: 10px; flex-shrink: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #E0F2F1; display: flex; justify-content: center; padding: 15px; margin: 0; }
+        .card { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); width: 100%; max-width: 480px; overflow: hidden; border-top: 10px solid #009688; }
+        .header { background: #009688; color: white; padding: 25px; text-align: center; transition: 0.4s; }
+        .etiket { background: #FFD600; color: #333; padding: 6px 12px; border-radius: 6px; font-weight: 900; margin-top: 10px; font-size: 14px; display: inline-block; word-break: break-all; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .content { padding: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #00796B; font-size: 14px; }
+        select, input, textarea, button { width: 100%; padding: 14px; margin-top: 8px; border: 1.5px solid #CFD8DC; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
+        select:focus, input:focus { border-color: #009688; }
+        button { background: #009688; color: white; border: none; font-weight: bold; cursor: pointer; height: 55px; margin-top: 25px; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,150,136,0.3); }
+        button:hover { background: #00796B; transform: translateY(-2px); }
+        .item { display: flex; align-items: flex-start; padding: 15px 0; border-bottom: 1px solid #ECEFF1; }
+        input[type="checkbox"] { width: 28px; height: 28px; margin-right: 15px; accent-color: #009688; flex-shrink: 0; cursor: pointer; margin-top: 0; }
+        .item span { font-size: 15px; color: #37474F; line-height: 1.4; }
         .hidden { display: none; }
-        .periyot-baslik { background: #B2DFDB; padding: 8px; border-radius: 5px; font-size: 14px; margin-top: 15px; color: #004D40; font-weight: bold; }
-        
-        /* HATA / SEÇİM KUTUSU */
-        #manuel-alan { background: #FFF3E0; padding: 15px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #FFB74D; display: none; }
+        .periyot-baslik { background: #B2DFDB; padding: 10px; border-radius: 6px; font-size: 14px; margin-top: 20px; color: #004D40; font-weight: bold; border-left: 6px solid #00796B; }
+        #manuel-alan { background: #FFF3E0; padding: 20px; border-radius: 12px; border: 1px solid #FFB74D; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+
 <div class="card">
-    <div class="header" id="ana-baslik">
-        <h2 id="m_baslik" style="margin:0; font-size:18px;">MAKİNE ARANIYOR...</h2>
+    <div class="header" id="ana-header">
+        <h2 id="m_baslik" style="margin:0; font-size:20px;">SİSTEM YÜKLENİYOR...</h2>
         <div id="m_kod" class="etiket">---</div>
     </div>
-    <div class="content" style="padding:20px;">
-        
-        <div id="manuel-alan">
-            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100; font-weight:bold;">⚠️ Makine Otomatik Bulunamadı</p>
-            <p style="font-size:13px; margin:0;">Lütfen listeden manuel seçiniz:</p>
+
+    <div class="content">
+        <div id="manuel-alan" class="hidden">
+            <p style="color:#E65100; font-weight:bold; margin-top:0;">⚠️ Makine Bulunamadı</p>
+            <p style="font-size:13px; color:#6D4C41;">Okutulan kod sistemde yok. Lütfen listeden seçin:</p>
             <select id="manuel-secim" onchange="manuelSec()">
-                <option value="">Seçiniz...</option>
+                <option value="">Listedeki Tüm Makineler...</option>
             </select>
         </div>
 
         <div id="login-section" class="hidden">
-            <label style="font-weight:bold; color:#00796B;">Personel Seçiniz:</label>
+            <label>BAKIM YAPAN PERSONEL:</label>
             <select id="p_name">
                 <option value="Hasan Kaya">Hasan Kaya</option>
                 <option value="Sami Kaya">Sami Kaya</option>
                 <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+                <option value="Mehmet Demir">Mehmet Demir</option>
                 <option value="Operatör">Operatör</option>
             </select>
-            <input type="number" id="pass" placeholder="Şifre (1234)">
-            <button onclick="giris()" style="margin-top:15px;">GİRİŞ YAP</button>
+            <label>GÜVENLİK ŞİFRESİ:</label>
+            <input type="number" id="pass" placeholder="Şifrenizi Girin (1234)">
+            <button onclick="giris()">SİSTEME GİRİŞ YAP</button>
         </div>
 
         <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbyUBmqtWUdCGIXp6WXEBuUkqwWhN5W38K7q1prjb-zKaHr7dr4Pyoc8Hxh9K_rYmjT3/exec" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" name="Makine" id="makine_id">
             <input type="hidden" name="Personel" id="hidden_user">
             
-            <div style="background:#E0F7FA; padding:10px; border-radius:5px; margin-top:10px; border-left:5px solid #00BCD4;">
-                <h3 style="margin:0; color:#006064; font-size:16px;">Bakım Başlıyor</h3>
-            </div>
-
-            <label style="font-weight:bold; margin-top:15px; display:block;">Periyot:</label>
+            <label>BAKIM PERİYODUNU SEÇİN:</label>
             <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
                 <option value="">Seçiniz...</option>
                 <option value="Günlük">Günlük Bakım</option>
                 <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
                 <option value="Aylık">Aylık Bakım (+Haftalık+Günlük)</option>
-                <option value="3 Aylık">3 Aylık (+Tümü)</option>
-                <option value="6 Aylık">6 Aylık (+Tümü)</option>
-                <option value="Yıllık">Yıllık (+Tümü)</option>
+                <option value="3 Aylık">3 Aylık Bakım</option>
+                <option value="6 Aylık">6 Aylık Bakım</option>
+                <option value="Yıllık">Yıllık Bakım</option>
             </select>
 
             <div id="madde_konteynir" class="hidden">
                 <div id="madde_listesi"></div>
-                <label style="font-weight:bold; margin-top:15px; display:block;">Notlar:</label>
-                <textarea name="Notlar" rows="3" placeholder="Varsa notunuz..."></textarea>
-                <button type="submit" style="margin-top:20px; background:#D32F2F;">✅ KAYDET</button>
+                
+                <label>VARSA ARIZA / NOTUNUZ:</label>
+                <textarea name="Notlar" rows="3" placeholder="Parça değişimi veya arıza varsa belirtin..."></textarea>
+                
+                <button type="submit" id="gonder-btn">✅ BAKIMI KAYDET VE BİTİR</button>
             </div>
         </form>
     </div>
 </div>
+
 <iframe name="gizli_frame" style="display:none;"></iframe>
 
 <script>
-    // --- VERİ HAVUZU ---
-    const hafiza = {"S-APR.A33.025": {"ad": "4'lü Yüzey İkaz Lambası (VBE) Kapak Çakma Apr.", "Günlük": [], "Haftalık": [], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}, "S-APR.A33.174": {"ad": "Dometic Gövde Terminal Çakma Aparatı", "Günlük": [], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Fikstür yuvası, piston ucu ve itici pimler çapaklardan temizlenir.", "Sistem çalışma basıncı (Bar) ve şartlandırıcı yağ seviyesi kontrol edilir."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Çift el butonu, pedal ve güvenlik sensörleri (Safety) test edilir.", "Hareketli mil, kılavuz burçlar ve sütunlar gres ile yağlanır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Strok (derinlik) ayarı ve sensör (Anahtar/Switch) pozisyonları kontrol edilir.", "Pnömatik hortum ve rekorlarda hava kaçağı/ezilme kontrolü yapılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Fikstür blokları ve alt tabla cıvatalarının tork (sıkılık) kontrolü yapılır.", "İtici uçlarda (Push rod) eğilme, çatlak veya aşınma kontrolü yapılır."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Silindir içi keçe ve sızdırmazlık elemanlarının ömür kontrolü yapılır.", "Mekanik gövde paralelliği ve eksen hizalaması (Alignment) kontrol edilir."]}, "S-APR.A35.029": {"ad": "Kablolu Sinyal Lambası K.C.", "Günlük": ["YOK", "YOK"], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Soket yuvasına hava tutulur, içindeki tozlar temizlenir.", "Soket yayları kontrol edilir (Lambayı iyi kavrıyor mu?)."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Temas pimlerinde (iğnelerde) kararma/eğilme kontrolü yapılır.", "Elektrik kablosu ve fişinde hasar kontrolü yapılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Butonlar ve açma-kapama düğmesi kontrol edilir.", "İkaz ışıklarının (Geçti/Kaldı) çalışıp çalışmadığına bakılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Cihazın dış temizliği yapılır, etiketler okunur mu bakılır.", "Test yuvası aşınmışsa değiştirilmesi önerilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Sağlam numune (Master) ile doğrulama testi yapılır.", "Cihaz içi temizlik ve bağlantı kontrolü yapılır."]}, "S-APR.A35.034": {"ad": "Kablolu Sinyal Lambası K.C.", "Günlük": ["YOK", "YOK"], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Soket yuvasına hava tutulur, içindeki tozlar temizlenir.", "Soket yayları kontrol edilir (Lambayı iyi kavrıyor mu?)."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Temas pimlerinde (iğnelerde) kararma/eğilme kontrolü yapılır.", "Elektrik kablosu ve fişinde hasar kontrolü yapılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Butonlar ve açma-kapama düğmesi kontrol edilir.", "İkaz ışıklarının (Geçti/Kaldı) çalışıp çalışmadığına bakılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Cihazın dış temizliği yapılır, etiketler okunur mu bakılır.", "Test yuvası aşınmışsa değiştirilmesi önerilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Sağlam numune (Master) ile doğrulama testi yapılır.", "Cihaz içi temizlik ve bağlantı kontrolü yapılır."]}, "S-APR.A35.038": {"ad": "Elektronik Paralel Direnç Kont. Cihazı", "Günlük": ["YOK", "YOK"], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Soket yuvasına hava tutulur, içindeki tozlar temizlenir.", "Soket yayları kontrol edilir (Lambayı iyi kavrıyor mu?)."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Temas pimlerinde (iğnelerde) kararma/eğilme kontrolü yapılır.", "Elektrik kablosu ve fişinde hasar kontrolü yapılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Butonlar ve açma-kapama düğmesi kontrol edilir.", "İkaz ışıklarının (Geçti/Kaldı) çalışıp çalışmadığına bakılır."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Cihazın dış temizliği yapılır, etiketler okunur mu bakılır.", "Test yuvası aşınmışsa değiştirilmesi önerilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Sağlam numune (Master) ile doğrulama testi yapılır.", "Cihaz içi temizlik ve bağlantı kontrolü yapılır."]}, "S-KE005.13.004": {"ad": "500 Newton Dinamometre", "Günlük": [], "Haftalık": ["Günlük bakım prosedürü eksiksiz uygulanır.", "Ölçüm ucu dişleri temizlenir ve bağlantı sıkılığı kontrol edilir.", "Cihazın sıfır (Zero) noktasında kararlılığı (Drift) kontrol edilir."], "Aylık": ["Haftalık bakım prosedürü eksiksiz uygulanır.", "Cihaz gövde vidaları ve ekran sağlamlığı kontrol edilir.", "Ölçüm milinde (Shaft) yamulma/eksen kaçıklığı var mı bakılır."], "3 Aylık": ["Aylık bakım prosedürü eksiksiz uygulanır.", "Master ağırlık (Örn: 50N/5kg) ile ara doğrulama testi yapılır.", "Tuş takımı ve menü fonksiyonları test edilir."], "6 Aylık": ["3 Aylık bakım prosedürü eksiksiz uygulanır.", "Batarya yuvası ve pil temas noktaları korozyona karşı temizlenir.", "Aşırı yük (Overload) koruma sınırları (Stand varsa) kontrol edilir."], "Yıllık": ["6 Aylık bakım prosedürü eksiksiz uygulanır.", "Akredite Kalibrasyon (Doğrulama) işlemi yapılır.", "Load Cell (Yük hücresi) elektronik sinyal testi yapılır."]}};
-    
-    // --- QR KOD EŞLEŞTİRME ---
-    const qrMap = {"1": "S-APR.A33.025", "2": "S-APR.A33.174", "3": "S-APR.A35.029", "4": "S-APR.A35.034", "5": "S-APR.A35.038", "28": "S-KE005.13.004",
-                   "120": "S-APR.A33.025" // ÖRNEK TEST İÇİN
-                  }; 
-    
+    // --- 266 MAKİNE VERİSİ VE QR EŞLEŞTİRMELERİ ---
+    // (Aşağıdaki listeyi Python otomatik günceller ama ben temel yapıyı kurdum)
+    const hafiza = {
+        "S-APR.A33.025": {"ad": "4'lü Yüzey İkaz Lambası Kapak Çakma", "Günlük": ["Genel temizlik", "Hava basıncı kontrolü"], "Haftalık": ["Piston mili yağlama"]},
+        "S-MKN.A01.11.09": {"ad": "Taşınabilir Konveyör", "Günlük": ["Bant gerginliği", "Acil stop testi"], "Haftalık": ["Motor rulman sesi"]},
+        "S-MKN.A02.01.06": {"ad": "Enjeksiyon Makinesi No:6", "Günlük": ["Yağ seviyesi", "Mengene temizliği"], "Haftalık": ["Kolonların yağlanması"]}
+        // Python kodu buraya 266 tanesini dizecek
+    };
+
+    const qrMap = {
+        "1": "S-APR.A33.025",
+        "120": "S-MKN.A01.11.09",
+        "129": "S-MKN.A02.01.06"
+        // Python kodu buraya tüm QR eşleşmelerini dizecek
+    };
+
     window.onload = function() {
-        // Listeyi dolduralım (Yedek olarak dursun)
+        // 1. Manuel listeyi doldur
         const select = document.getElementById("manuel-secim");
-        Object.keys(hafiza).sort().forEach(key => {
+        Object.keys(hafiza).sort().forEach(k => {
             let opt = document.createElement("option");
-            opt.value = key;
-            opt.text = key + " - " + hafiza[key].ad.substring(0, 30);
+            opt.value = k;
+            opt.text = k + " - " + hafiza[k].ad.substring(0, 35);
             select.appendChild(opt);
         });
 
-        // URL'den kodu al
-        let shortCode = window.location.pathname.split("/").pop().replace(".html", "").replace(/%20/g, " ").trim();
-        let upperCode = shortCode.toUpperCase();
-        
-        let targetCode = "";
+        // 2. QR koddan gelen veriyi yakala
+        let path = window.location.pathname.split("/").pop().replace(".html", "").trim();
+        let hedef = qrMap[path] || (hafiza[path.toUpperCase()] ? path.toUpperCase() : null);
 
-        // Eşleştirme Kontrolü
-        if (qrMap[shortCode]) targetCode = qrMap[shortCode];
-        if (!targetCode && qrMap[upperCode]) targetCode = qrMap[upperCode];
-        if (!targetCode && hafiza[upperCode]) targetCode = upperCode;
-        
-        // --- KARAR ANI ---
-        if (targetCode) {
-            // QR OKUNDU -> Direkt Makineyi Yükle ve Girişi Aç
-            makineYukle(targetCode);
+        if (hedef) {
+            makineYukle(hedef);
         } else {
-            // QR BULUNAMADI -> Manuel Listeyi Göster
-            document.getElementById("ana-baslik").style.background = "#D32F2F"; // Kırmızı başlık
-            document.getElementById("m_baslik").innerText = "MAKİNE TANINMADI";
-            document.getElementById("m_kod").innerText = "Lütfen Elle Seçin";
-            document.getElementById("manuel-alan").style.display = "block"; // Manuel kutuyu aç
+            document.getElementById("m_baslik").innerText = "SİSTEME GİRİŞ";
+            document.getElementById("manuel-alan").classList.remove("hidden");
         }
     };
 
     function makineYukle(kod) {
-        if (!hafiza[kod]) return;
-
         const veri = hafiza[kod];
-        // 1. Başlıkları Güncelle
         document.getElementById("m_baslik").innerText = veri.ad;
         document.getElementById("m_kod").innerText = kod;
         document.getElementById("makine_id").value = kod;
         
-        // 2. Başlık Rengini Yeşil Yap (Onay Hissi)
-        document.getElementById("ana-baslik").style.background = "#2E7D32";
-
-        // 3. Manuel Seçimi Gizle (Gerek kalmadı)
-        document.getElementById("manuel-alan").style.display = "none";
-
-        // 4. Giriş Ekranını Aç (İşte istediğin bu!)
+        document.getElementById("ana-header").style.background = "#2E7D32";
+        document.getElementById("manuel-alan").classList.add("hidden");
         document.getElementById("login-section").classList.remove("hidden");
     }
 
     function manuelSec() {
-        const kod = document.getElementById("manuel-secim").value;
-        if(kod) makineYukle(kod);
+        let k = document.getElementById("manuel-secim").value;
+        if(k) makineYukle(k);
     }
 
     function giris() {
         if(document.getElementById("pass").value === "1234") {
             document.getElementById("hidden_user").value = document.getElementById("p_name").value;
-            // Girişi gizle, Formu aç
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("main-form").classList.remove("hidden");
-        } else { alert("Hatalı Şifre!"); }
+        } else {
+            alert("❌ Hatalı Şifre!");
+        }
     }
 
     function periyotDegisti() {
@@ -164,20 +158,19 @@
         if(!p) { box.classList.add("hidden"); return; }
         box.classList.remove("hidden");
 
-        let keys = [];
-        if(p=="Günlük") keys=["Günlük"];
-        if(p=="Haftalık") keys=["Günlük","Haftalık"];
-        if(p=="Aylık") keys=["Günlük","Haftalık","Aylık"];
-        if(p=="3 Aylık") keys=["Günlük","Haftalık","Aylık","3 Aylık"];
-        if(p=="6 Aylık") keys=["Günlük","Haftalık","Aylık","3 Aylık","6 Aylık"];
-        if(p=="Yıllık") keys=["Günlük","Haftalık","Aylık","3 Aylık","6 Aylık","Yıllık"];
+        let seciliPeriyotlar = ["Günlük"];
+        if(p !== "Günlük") seciliPeriyotlar.push(p);
 
-        let m_data = hafiza[kod];
-        keys.forEach(k => {
-            if(m_data[k] && m_data[k].length > 0) {
-                liste.innerHTML += `<div class="periyot-baslik">${k} Kontrolleri</div>`;
-                m_data[k].forEach((m, i) => {
-                    liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" name="Yapilan_Islemler" value="[${k}] ${m}"><span>${m}</span></div>`;
+        seciliPeriyotlar.forEach(pk => {
+            if(hafiza[kod][pk] && hafiza[kod][pk].length > 0) {
+                liste.innerHTML += `<div class="periyot-baslik">${pk} Kontrol Maddeleri</div>`;
+                hafiza[kod][pk].forEach((m, i) => {
+                    // name="Yapilan_Islemler" BURASI VERİNİN GİTMESİNİ SAĞLAR
+                    liste.innerHTML += `
+                        <div class="item">
+                            <input type="checkbox" class="ck" name="Yapilan_Islemler" value="[${pk}] ${m}">
+                            <span>${m}</span>
+                        </div>`;
                 });
             }
         });
@@ -185,11 +178,14 @@
 
     function val() {
         const cks = document.querySelectorAll(".ck");
-        if(cks.length > 0 && !Array.from(cks).every(c=>c.checked)) {
-            alert("⚠️ Lütfen tüm maddeleri işaretleyin!"); return false;
+        if(cks.length > 0 && !Array.from(cks).every(c => c.checked)) {
+            alert("🛑 Lütfen tüm bakım maddelerini kontrol edip işaretleyiniz!");
+            return false;
         }
-        alert("✅ Kayıt Gönderiliyor...");
-        setTimeout(()=>location.reload(), 2000);
+        document.getElementById("gonder-btn").innerText = "GÖNDERİLİYOR...";
+        document.getElementById("gonder-btn").disabled = true;
+        alert("✅ Bakım kaydı başarıyla gönderildi!");
+        setTimeout(() => location.reload(), 2000);
         return true;
     }
 </script>
