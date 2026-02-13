@@ -156,7 +156,7 @@
             if(m_data[k] && m_data[k].length > 0) {
                 liste.innerHTML += `<div class="periyot-baslik">${k} Kontrolleri</div>`;
                 m_data[k].forEach((m, i) => {
-                    liste.innerHTML += `<div class="item"><input type="checkbox" name="Yapilan_Islemler[]" class="ck" value="${k}-${i+1}"><span>${m}</span></div>`;
+                    liste.innerHTML += `<div class="item"><input type="checkbox" name="kontroller" class="ck" value="${k}-${i+1}"><span>${m}</span></div>`;
                 });
             }
         });
