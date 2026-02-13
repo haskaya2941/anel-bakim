@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anel Bakım Takip Sistemi</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #E0F2F1; display: flex; justify-content: center; padding: 15px; margin: 0; }
+        .card { background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 6px solid #009688; overflow: hidden; }
+        .header { background: #009688; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #00796B; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+        button { background: #009688; color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        input[type="checkbox"] { width: 25px; height: 25px; margin-right: 15px; accent-color: #009688; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <h2 id="m_baslik" style="margin:0;">Yükleniyor...</h2>
+        <p id="m_kod" style="margin:5px 0 0; opacity:0.8;">Sistem Tanımlanıyor</p>
+    </div>
+
+    <div class="content">
+        <div id="login-section">
+            <label>Personel Seçiniz:</label>
+            <select id="user_list">
+                <option value="Hasan Kaya">Hasan Kaya</option>
+                <option value="Sami Kaya">Sami Kaya</option>
+                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+            </select>
+            <label>Giriş Şifresi:</label>
+            <input type="password" id="pass" placeholder="****">
+            <button onclick="sistemeGir()">SİSTEME GİRİŞ YAP</button>
+        </div>
+
+        <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbyOWX0tEiEqY7mpECAVlL7jvC8vmAzCc2Pw4-tTKIUW5RKZ8sGvtQelqN7SUDZRmDPY/exec" target="gizli_frame" onsubmit="return bitti()">
+            <input type="hidden" name="Makine" id="makine_id">
+            <input type="hidden" name="Personel" id="hidden_user">
+
+            <label>Kontrol Maddeleri:</label>
+            <div style="margin-top:10px;">
+                <div class="item"><input type="checkbox" name="Yapilan_Islemler" value="1"> <span>Genel Temizlik ve Düzen</span></div>
+                <div class="item"><input type="checkbox" name="Yapilan_Islemler" value="2"> <span>Emniyet Ekipmanları Kontrolü</span></div>
+                <div class="item"><input type="checkbox" name="Yapilan_Islemler" value="3"> <span>Mekanik/Pnömatik Test</span></div>
+            </div>
+
+            <textarea name="Notlar" rows="3" placeholder="Varsa notunuzu yazın..."></textarea>
+            <button type="submit">✅ BAKIMI KAYDET</button>
+        </form>
+    </div>
+</div>
+
+<iframe name="gizli_frame" style="display:none;"></iframe>
+
+<script>
+    // URL'den makine numarasını yakalama (Örn: /10.html -> 10)
+    const path = window.location.pathname;
+    const parts = path.split("/");
+    const lastPart = parts[parts.length - 1];
+    const makineNo = lastPart.replace(".html", "");
+
+    if (makineNo && !isNaN(makineNo)) {
+        document.getElementById("m_baslik").innerText = "Bakım Formu";
+        document.getElementById("m_kod").innerText = "Makine No: " + makineNo;
+        document.getElementById("makine_id").value = makineNo;
+    } else {
+        document.getElementById("m_baslik").innerText = "Uyarı";
+        document.getElementById("m_kod").innerText = "Lütfen QR Kodunu Okutun";
+    }
+
+    function sistemeGir() {
+        if(document.getElementById("pass").value === "1234") {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("main-form").classList.remove("hidden");
+            document.getElementById("hidden_user").value = document.getElementById("user_list").value;
+        } else { alert("Hatalı Şifre!"); }
+    }
+
+    function bitti() {
+        alert("✅ Kayıt Başarıyla Tabloya Gönderildi!");
+        setTimeout(() => { location.reload(); }, 1500);
+        return true;
+    }
+</script>
+</body>
+</html>
