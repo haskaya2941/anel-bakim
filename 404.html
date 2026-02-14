@@ -14,7 +14,7 @@
         input[type="checkbox"] { width: 25px; height: 25px; margin-right: 10px; flex-shrink: 0; }
         .hidden { display: none; }
         .periyot-baslik { background: #B2DFDB; padding: 8px; border-radius: 5px; font-size: 14px; margin-top: 15px; color: #004D40; font-weight: bold; }
-        #manuel-kutu { background: #FFF3E0; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #FFB74D; display:none; }
+        #manuel-kutu { background: #FFF3E0; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #FFB74D; }
     </style>
 </head>
 <body>
@@ -25,84 +25,81 @@
     </div>
     <div class="content" style="padding:20px;">
         
-        <div id="manuel-kutu">
-            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100;">⚠️ Aranan QR: <b id="aranan-txt"></b> bulunamadı.</p>
-            <select id="manuel-secim" onchange="manuelSec()"><option value="">Listeden Seçiniz...</option></select>
+        <div id="manuel-kutu" class="hidden">
+            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100;">⚠️ Aranan QR bulunamadı.</p>
+            <select id="manuel-secim" onchange="makineYukle(this.value)"><option value="">Listeden Seçiniz...</option></select>
         </div>
 
-        <div id="ana-ekran" class="hidden">
-            <div id="login-section">
-                <label>Personel:</label>
-                <select id="p_name">
-                    <option value="Hasan Kaya">Hasan Kaya</option>
-                    <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
-                    <option value="Operatör">Operatör</option>
-                </select>
-                <input type="number" id="pass" placeholder="Şifre (1234)">
-                <button onclick="giris()">GİRİŞ YAP</button>
+        <div id="login-section" class="hidden">
+            <label>Personel:</label>
+            <select id="p_name">
+                <option value="Hasan Kaya">Hasan Kaya</option>
+                <option value="Sami Kaya">Sami Kaya</option>
+                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+                <option value="Operatör">Operatör</option>
+            </select>
+            <input type="number" id="pass" placeholder="Şifre (1234)">
+            <button onclick="giris()">GİRİŞ YAP</button>
+        </div>
+
+        <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbwkmU2nGyNK4Cpu_dHJ_1RlfsD955ez1JPNpgmuQUcUqsIyAkT4VJb8bKpGPC1QwMLQ/exec" target="gizli_frame" onsubmit="return val()">
+            <input type="hidden" name="Makine" id="makine_id">
+            <input type="hidden" name="MakineAdi" id="makine_adi_gizli">
+            <input type="hidden" name="Personel" id="hidden_user">
+            
+            <label style="font-weight:bold;">Bakım Periyodu:</label>
+            <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
+                <option value="">Seçiniz...</option>
+                <option value="Günlük">Günlük Bakım</option>
+                <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
+                <option value="Aylık">Aylık Bakım (+H+G)</option>
+                <option value="3 Aylık">3 Aylık Bakım</option>
+                <option value="6 Aylık">6 Aylık Bakım</option>
+                <option value="Yıllık">Yıllık Bakım</option>
+            </select>
+
+            <div id="madde_konteynir" class="hidden">
+                <div id="madde_listesi"></div>
+                <textarea name="Notlar" rows="3" placeholder="Varsa notunuzu yazın..."></textarea>
+                <button type="submit" style="background:#D32F2F; margin-top:15px;">✅ KAYDET</button>
             </div>
-
-            <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbxwbaWlONxDlF997CP4wF7GfyG38kb4okyl_MlNqd9LOHpNpS5HkQrGsFRNDvLqix5D/exec" target="gizli_frame" onsubmit="return val()">
-                <input type="hidden" name="Makine" id="makine_id">
-                <input type="hidden" name="MakineAdi" id="makine_adi_gizli"> <input type="hidden" name="Personel" id="hidden_user">
-                
-                <label style="font-weight:bold;">Bakım Periyodu:</label>
-                <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
-                    <option value="">Seçiniz...</option>
-                    <option value="Günlük">Günlük Bakım</option>
-                    <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
-                    <option value="Aylık">Aylık Bakım (+H+G)</option>
-                    <option value="3 Aylık">3 Aylık Bakım</option>
-                    <option value="6 Aylık">6 Aylık Bakım</option>
-                    <option value="Yıllık">Yıllık Bakım</option>
-                </select>
-
-                <div id="madde_konteynir" class="hidden">
-                    <div id="madde_listesi"></div>
-                    <textarea name="Notlar" rows="3" placeholder="Notlar..."></textarea>
-                    <button type="submit">✅ KAYDET</button>
-                </div>
-            </form>
-        </div>
+        </form>
     </div>
 </div>
 <iframe name="gizli_frame" style="display:none;"></iframe>
 
 <script>
-    // VERİLERİN BİR KISMI (DİĞERLERİ AYNI KALACAK)
-    const hafiza = {"S-APR.A33.174": {"ad": "Dometic Gövde Terminal Çakma Aparatı", "Günlük": ["Genel Temizlik"], "Haftalık": ["Piston Kontrolü"], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}};
-    const qrMap = {"2": "S-APR.A33.174"};
+    const hafiza = {"S-APR.A33.025": {"ad": "4'lü Yüzey İkaz Lambası (VBE) Kapak Çakma Apr.", "Günlük": ["Cihaz temizliği", "Sensör kontrolü"], "Haftalık": ["Piston yağlama"], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}, "S-APR.A33.174": {"ad": "Dometic Gövde Terminal Çakma Aparatı", "Günlük": ["Basınç kontrolü"], "Haftalık": ["Kızak temizliği"], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}};
+    const qrMap = {"1": "S-APR.A33.025", "2": "S-APR.A33.174"};
 
     window.onload = function() {
         const select = document.getElementById("manuel-secim");
-        Object.keys(hafiza).sort().forEach(key => {
-            let opt = document.createElement("option"); opt.value = key; opt.text = key + " - " + hafiza[key].ad.substring(0, 30); select.appendChild(opt);
+        Object.keys(hafiza).sort().forEach(k => {
+            let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + hafiza[k].ad.substring(0,30); select.appendChild(opt);
         });
 
         let shortCode = window.location.pathname.split("/").pop().replace(".html", "").trim();
         let targetCode = qrMap[shortCode] || (hafiza[shortCode.toUpperCase()] ? shortCode.toUpperCase() : null);
 
         if (targetCode) makineYukle(targetCode);
-        else document.getElementById("manuel-kutu").style.display = "block";
+        else document.getElementById("manuel-kutu").classList.remove("hidden");
     };
 
     function makineYukle(kod) {
         document.getElementById("m_baslik").innerText = hafiza[kod].ad;
         document.getElementById("m_kod").innerText = kod;
         document.getElementById("makine_id").value = kod;
-        document.getElementById("makine_adi_gizli").value = hafiza[kod].ad; // ADI BURADA SET EDİYORUZ
-        document.getElementById("manuel-kutu").style.display = "none";
-        document.getElementById("ana-ekran").classList.remove("hidden");
+        document.getElementById("makine_adi_gizli").value = hafiza[kod].ad;
+        document.getElementById("manuel-kutu").classList.add("hidden");
+        document.getElementById("login-section").classList.remove("hidden");
     }
-
-    function manuelSec() { let k = document.getElementById("manuel-secim").value; if(k) makineYukle(k); }
 
     function giris() {
         if(document.getElementById("pass").value === "1234") {
             document.getElementById("hidden_user").value = document.getElementById("p_name").value;
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("main-form").classList.remove("hidden");
-        } else { alert("Şifre Hatalı!"); }
+        } else { alert("Hatalı Şifre!"); }
     }
 
     function periyotDegisti() {
@@ -113,14 +110,14 @@
         if(!p) return;
         document.getElementById("madde_konteynir").classList.remove("hidden");
 
-        let seciliPeriyotlar = ["Günlük"];
-        if(p !== "Günlük") seciliPeriyotlar.push(p);
+        let keys = ["Günlük"];
+        if(p !== "Günlük") keys.push(p);
 
-        seciliPeriyotlar.forEach(k => {
+        keys.forEach(k => {
             if(hafiza[kod][k] && hafiza[kod][k].length > 0) {
                 liste.innerHTML += `<div class="periyot-baslik">${k} Kontrolleri</div>`;
                 hafiza[kod][k].forEach(m => {
-                    // KRİTİK DÜZELTME: name="Yapilan_Islemler" EKLENDİ
+                    // name="Yapilan_Islemler" eklendi!
                     liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" name="Yapilan_Islemler" value="${m}"><span>${m}</span></div>`;
                 });
             }
@@ -133,7 +130,7 @@
             alert("⚠️ Tüm maddeleri işaretlemelisiniz!"); return false;
         }
         alert("✅ Kayıt Gönderildi!");
-        setTimeout(()=>location.reload(), 1500);
+        setTimeout(()=>location.reload(), 2000);
         return true;
     }
 </script>
