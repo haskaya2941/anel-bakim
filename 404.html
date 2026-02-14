@@ -32,6 +32,7 @@
         <div id="login-section">
             <label>Personel Seçiniz:</label>
             <select id="u">
+                <option value="Hasan Kaya">Hasan Kaya</option>
                 <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
                 <option value="Mehmet Demir">Mehmet Demir</option>
                 <option value="Sami Kaya">Sami Kaya</option>
@@ -42,7 +43,7 @@
             <button type="button" style="background:#00897B; color:white;" onclick="login()">GİRİŞ YAP</button>
         </div>
 
-        <form id="main-form" style="display:none;" action="BURAYA_APPS_SCRIPT_URL_GELECEK" method="POST" onsubmit="return val()">
+        <form id="main-form" style="display:none;" action="https://script.google.com/macros/s/AKfycbyOWX0tEiEqY7mpECAVlL7jvC8vmAzCc2Pw4-tTKIUW5RKZ8sGvtQelqN7SUDZRmDPY/exec" method="POST" onsubmit="return val()">
             <input type="hidden" id="h_u" name="Personel">
             
             <label>Makine Seçimi:</label>
@@ -96,7 +97,7 @@ const makineVerileri = {
     }
 };
 
-const creds = {'Ahmet Yılmaz': '1111', 'Mehmet Demir': '2222', 'Sami Kaya': '3333', 'Operatör': '0000'};
+const creds = {'Hasan Kaya': '1234', 'Ahmet Yılmaz': '1111', 'Mehmet Demir': '2222', 'Sami Kaya': '3333', 'Operatör': '0000'};
 
 function login() {
     const user = document.getElementById('u').value;
@@ -133,7 +134,7 @@ function updateUI() {
     let html = `<div class="item-group"><span style="color:#00796B; font-weight:bold;">${map[pKey].toUpperCase()} KONTROLLERİ</span>`;
     maddeler.forEach((m, i) => {
         html += `<div class="item">
-            <input type="checkbox" name="Yapilan_Islemler" class="ck" value="${i+1}">
+            <input type="checkbox" name="Yapilan_Islemler" class="ck" value="${m}">
             <span>${m}</span>
         </div>`;
     });
