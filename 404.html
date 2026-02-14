@@ -2,15 +2,16 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anel Bakım</title>
+    <title>Anel Bakım Sistemi</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background: #E0F2F1; padding: 15px; margin: 0; }
         .card { background: white; border-radius: 15px; max-width: 450px; margin: auto; overflow: hidden; border-top: 5px solid #009688; box-shadow: 0 8px 20px rgba(0,150,136,0.1); }
         .header { background: linear-gradient(135deg, #20B2AA, #009688); color: white; padding: 25px; text-align: center; }
+        .header h2 { margin: 0; font-size: 18px; }
         .etiket { background: #FFD600; color: #333; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; display:inline-block; margin-top:10px; }
         .content { padding: 25px; }
-        label { display: block; margin-top: 18px; font-weight: 600; color: #00796B; }
+        label { display: block; margin-top: 15px; font-weight: 600; color: #00796B; }
         select, input, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #B2DFDB; font-size: 16px; box-sizing: border-box; }
         button { width: 100%; padding: 14px; margin-top: 20px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
         .btn-login { background: #00897B; color: white; }
@@ -18,7 +19,7 @@
         .item-group { margin-top: 20px; background: #F0F9F8; padding: 15px; border-radius: 10px; border-left: 4px solid #009688; }
         .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #E0F2F1; }
         input[type="checkbox"] { width: 26px; height: 26px; margin-right: 12px; accent-color: #009688; flex-shrink: 0; }
-        .p-baslik { font-weight: bold; color: #00796B; display: block; border-bottom: 1px solid #B2DFDB; font-size: 13px; margin-bottom: 5px; }
+        .p-baslik { font-weight: bold; color: #00796B; display: block; border-bottom: 1px solid #B2DFDB; font-size: 13px; }
         .hidden { display: none; }
     </style>
 </head>
@@ -42,7 +43,7 @@
             <input type="number" id="pass" placeholder="****" inputmode="numeric">
             <button type="button" class="btn-login" onclick="giris()">GİRİŞ YAP</button>
         </div>
-        <form id="main-form" class="hidden" action="https://script.google.com/macros/s/AKfycbxm_DqXCI6pfQdQjoroyf9dBE8lG5-9f4SEYsSu2NL_0ho3t0_PfdNTnX27wlr6ZAaH/exec" method="POST" target="gizli_frame" onsubmit="return val()">
+        <form id="main-form" class="hidden" action="https://script.google.com/macros/s/AKfycby7_OXSunvBWUvbhzp00iepXjWATjpOi_ri8evgliHIT0xFwzGnz-VF6is3NdlXM4na/exec" method="POST" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" name="Makine" id="h_m"><input type="hidden" name="MakineAdi" id="h_ma"><input type="hidden" name="Personel" id="h_u">
             <label>Bakım Periyodu:</label>
             <select id="pt" name="Periyot" required onchange="renderItems()">
@@ -55,7 +56,7 @@
                 <option value="Yıllık">Yıllık Bakım (+Hepsi)</option>
             </select>
             <div id="dynamic-items"></div>
-            <textarea name="Notlar" rows="3" placeholder="Notlar..."></textarea>
+            <textarea name="Notlar" rows="3" placeholder="Arıza / Notlar..."></textarea>
             <button type="submit" class="btn-submit" id="btn-kaydet">✅ KAYDI TAMAMLA</button>
         </form>
     </div>
@@ -105,7 +106,7 @@ function renderItems() {
 
     keys.forEach(k => {
         if(makineVerileri[mKey][k] && makineVerileri[mKey][k].length > 0) {
-            let html = `<div class="item-group"><span class="p-baslik">${k.toUpperCase()}</span>`;
+            let html = `<div class="item-group"><span class="p-baslik">${k.toUpperCase()} KONTROLLERİ</span>`;
             makineVerileri[mKey][k].forEach(m => {
                 html += `<div class="item"><input type="checkbox" name="Yapilan_Islemler" class="ck" value="${m.idx}"><span>${m.txt}</span></div>`;
             });
