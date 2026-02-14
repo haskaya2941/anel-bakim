@@ -10,6 +10,7 @@
         .card { background: white; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,150,136,0.15); max-width: 500px; margin: auto; overflow: hidden; border-top: 4px solid #009688; }
         .header { background: linear-gradient(135deg, #20B2AA, #009688); color: white; padding: 25px; text-align: center; }
         .header h2 { margin: 0; font-size: 20px; }
+        .etiket { background: #FFD600; color: #333; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; display:inline-block; margin-top:10px; }
         .content { padding: 25px; }
         label { display: block; margin-top: 18px; font-weight: 600; color: #00796B; }
         select, input, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #B2DFDB; font-size: 16px; box-sizing: border-box; }
@@ -17,18 +18,26 @@
         .btn-submit { background: linear-gradient(135deg, #20B2AA, #009688); color: white; }
         .item-group { margin-top: 20px; background: #F0F9F8; padding: 15px; border-radius: 10px; border-left: 4px solid #009688; }
         .item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #E0F2F1; }
-        input[type="checkbox"] { width: 22px; height: 22px; margin-right: 12px; accent-color: #009688; }
+        input[type="checkbox"] { width: 26px; height: 26px; margin-right: 12px; accent-color: #009688; flex-shrink: 0; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <div class="header">
-        <h2 id="display-title">Bakım Kontrol Sistemi</h2>
-        <p id="display-code">Lütfen seçim yapınız</p>
+        <h2 id="display-title">Yükleniyor...</h2>
+        <div id="display-code" class="etiket">---</div>
     </div>
 
     <div class="content">
+        <div id="manuel-secim-alani" class="hidden">
+            <label>Makine Bulunamadı, Listeden Seçin:</label>
+            <select id="makine-secimi-dropdown" onchange="makineYukle(this.value)">
+                <option value="">-- Seçiniz --</option>
+            </select>
+        </div>
+
         <div id="login-section">
             <label>Personel Seçiniz:</label>
             <select id="u">
@@ -39,113 +48,136 @@
                 <option value="Operatör">Operatör</option>
             </select>
             <label>Şifre:</label>
-            <input type="password" id="p" placeholder="****">
+            <input type="number" id="p" placeholder="1234" inputmode="numeric">
             <button type="button" style="background:#00897B; color:white;" onclick="login()">GİRİŞ YAP</button>
         </div>
 
-        <form id="main-form" style="display:none;" action="https://script.google.com/macros/s/AKfycbyOWX0tEiEqY7mpECAVlL7jvC8vmAzCc2Pw4-tTKIUW5RKZ8sGvtQelqN7SUDZRmDPY/exec" method="POST" onsubmit="return val()">
+        <form id="main-form" class="hidden" action="https://script.google.com/macros/s/AKfycbyOWX0tEiEqY7mpECAVlL7jvC8vmAzCc2Pw4-tTKIUW5RKZ8sGvtQelqN7SUDZRmDPY/exec" method="POST" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" id="h_u" name="Personel">
+            <input type="hidden" id="h_m" name="Makine">
+            <input type="hidden" id="h_m_ad" name="MakineAdi">
             
-            <label>Makine Seçimi:</label>
-            <select id="makine-secimi" name="Makine" required onchange="updateUI()">
-                <option value="">-- Seçiniz --</option>
-                <option value="S-APR.A33.025">Kapak Çakma Aparatı</option>
-                <option value="S-CNC.M22.010">CNC Freze Makinesi</option>
-            </select>
-
             <label>Bakım Periyodu:</label>
-            <select id="pt" name="Periyot" required onchange="updateUI()">
+            <select id="pt" name="Periyot" required onchange="renderMaddeler()">
                 <option value="">Seçiniz...</option>
-                <option value="1">Günlük</option>
-                <option value="2">Haftalık</option>
-                <option value="3">Aylık</option>
-                <option value="4">3 Aylık</option>
-                <option value="5">6 Aylık</option>
-                <option value="6">Yıllık</option>
+                <option value="Günlük">Günlük Bakım</option>
+                <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
+                <option value="Aylık">Aylık Bakım (+H+G)</option>
+                <option value="3 Aylık">3 Aylık Bakım</option>
+                <option value="6 Aylık">6 Aylık Bakım</option>
+                <option value="Yıllık">Yıllık Bakım</option>
             </select>
 
             <div id="dynamic-items"></div>
 
-            <label>Notlar:</label>
-            <textarea name="Notlar" placeholder="Varsa arıza veya notunuzu belirtin..."></textarea>
+            <label>Arıza / Notlar:</label>
+            <textarea name="Notlar" placeholder="Varsa notunuzu belirtin..."></textarea>
             
             <button type="submit" class="btn-submit">✅ KAYDI TAMAMLA VE GÖNDER</button>
         </form>
     </div>
 </div>
+<iframe name="gizli_frame" style="display:none;"></iframe>
 
 <script>
-// --- TÜM VERİ YAPISI ---
+// --- VERİ YAPISI ---
 const makineVerileri = {
     "S-APR.A33.025": {
         title: "Kapak Çakma Aparatı",
-        gunluk: ["Cihaz temizliği", "Acil stop kontrolü", "Çene kontrolü", "Sensör kontrolü"],
-        haftalik: ["Pnömatik yağlama", "Hava kaçağı kontrolü"],
-        aylik: ["Piston mil kontrolü", "Şeffaf kapak menteşe kontrolü"],
-        uc_aylik: ["Genel somun/civata sıkılığı"],
-        alti_aylik: ["Sensör kalibrasyon teyidi"],
-        yillik: ["Sistem genel revizyonu"]
+        "Günlük": ["Cihaz temizliği", "Acil stop kontrolü", "Çene kontrolü", "Sensör kontrolü"],
+        "Haftalık": ["Pnömatik yağlama", "Hava kaçağı kontrolü"],
+        "Aylık": ["Piston mil kontrolü", "Şeffaf kapak menteşe kontrolü"],
+        "3 Aylık": ["Genel somun/civata sıkılığı"],
+        "6 Aylık": ["Sensör kalibrasyon teyidi"],
+        "Yıllık": ["Sistem genel revizyonu"]
     },
-    "S-CNC.M22.010": {
-        title: "CNC Freze Makinesi",
-        gunluk: ["Fener mili temizliği", "Yağ seviyesi", "Soğutma sıvısı"],
-        haftalik: ["Kızakların silinmesi", "Filtre kontrolü"],
-        aylik: ["Elektrik panosu temizliği"],
-        uc_aylik: ["Eksen kalibrasyon testi"],
-        alti_aylik: [],
-        yillik: ["Yıllık ağır bakım"]
+    "S-MKN.A01.11.09": {
+        title: "Taşınabilir Konveyör",
+        "Günlük": ["Bant temizliği", "Acil stop testi"],
+        "Haftalık": ["Motor rulman sesi kontrolü"]
     }
 };
 
+const qrMap = {"1": "S-APR.A33.025", "120": "S-MKN.A01.11.09"};
 const creds = {'Hasan Kaya': '1234', 'Ahmet Yılmaz': '1111', 'Mehmet Demir': '2222', 'Sami Kaya': '3333', 'Operatör': '0000'};
+
+let seciliMakineKod = "";
+
+window.onload = function() {
+    // Manuel listeyi doldur
+    const drp = document.getElementById('makine-secimi-dropdown');
+    Object.keys(makineVerileri).sort().forEach(k => {
+        let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + makineVerileri[k].title; drp.appendChild(opt);
+    });
+
+    // URL'den kodu yakala
+    let path = window.location.pathname.split("/").pop().replace(".html", "").trim();
+    let hedef = qrMap[path] || (makineVerileri[path.toUpperCase()] ? path.toUpperCase() : null);
+
+    if (hedef) {
+        makineYukle(hedef);
+    } else {
+        document.getElementById('display-title').innerText = "BAKIM SİSTEMİ";
+        document.getElementById('manuel-secim-alani').classList.remove('hidden');
+    }
+};
+
+function makineYukle(kod) {
+    if(!makineVerileri[kod]) return;
+    seciliMakineKod = kod;
+    document.getElementById('display-title').innerText = makineVerileri[kod].title;
+    document.getElementById('display-code').innerText = kod;
+    document.getElementById('h_m').value = kod;
+    document.getElementById('h_m_ad').value = makineVerileri[kod].title;
+    document.getElementById('manuel-secim-alani').classList.add('hidden');
+}
 
 function login() {
     const user = document.getElementById('u').value;
     const pass = document.getElementById('p').value;
+    if(!seciliMakineKod) { alert("Lütfen önce bir makine seçin veya QR okutun!"); return; }
+    
     if(creds[user] === pass) {
-        document.getElementById('login-section').style.display='none';
-        document.getElementById('main-form').style.display='block';
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('main-form').classList.remove('hidden');
         document.getElementById('h_u').value = user;
     } else { alert("Hatalı Şifre!"); }
 }
 
-function updateUI() {
-    const mKey = document.getElementById('makine-secimi').value;
+function renderMaddeler() {
     const pKey = document.getElementById('pt').value;
     const container = document.getElementById('dynamic-items');
-    
-    if(!mKey) return;
-    
-    // Başlığı güncelle
-    document.getElementById('display-title').innerText = makineVerileri[mKey].title;
-    document.getElementById('display-code').innerText = mKey;
-    
-    if(!pKey) { container.innerHTML = ""; return; }
+    container.innerHTML = "";
+    if(!pKey || !seciliMakineKod) return;
 
-    // Periyoda göre veri çek
-    const map = {"1":"gunluk","2":"haftalik","3":"aylik","4":"uc_aylik","5":"alti_aylik","6":"yillik"};
-    const maddeler = makineVerileri[mKey][map[pKey]];
+    let seciliPeriyotlar = ["Günlük"];
+    if(pKey !== "Günlük") seciliPeriyotlar.push(pKey);
 
-    if(!maddeler || maddeler.length === 0) {
-        container.innerHTML = "<p style='color:orange; padding:10px;'>Bu periyot için madde tanımlanmamış.</p>";
-        return;
-    }
-
-    let html = `<div class="item-group"><span style="color:#00796B; font-weight:bold;">${map[pKey].toUpperCase()} KONTROLLERİ</span>`;
-    maddeler.forEach((m, i) => {
-        html += `<div class="item">
-            <input type="checkbox" name="Yapilan_Islemler" class="ck" value="${m}">
-            <span>${m}</span>
-        </div>`;
+    seciliPeriyotlar.forEach(pk => {
+        const maddeler = makineVerileri[seciliMachineCodeGen(seciliMakineKod)][pk];
+        if(maddeler && maddeler.length > 0) {
+            let html = `<div class="item-group"><span style="color:#00796B; font-weight:bold;">${pk.toUpperCase()} KONTROLLERİ</span>`;
+            maddeler.forEach(m => {
+                html += `<div class="item">
+                    <input type="checkbox" name="Yapilan_Islemler" class="ck" value="[${pk}] ${m}">
+                    <span>${m}</span>
+                </div>`;
+            });
+            container.innerHTML += html + "</div>";
+        }
     });
-    container.innerHTML = html + "</div>";
 }
+
+// Yardımcı fonksiyon: Hafızadaki veriye erişim
+function seciliMachineCodeGen(kod) { return kod; }
 
 function val() {
     const checks = document.querySelectorAll('.ck');
-    if(checks.length === 0) { alert("Lütfen periyot seçin!"); return false; }
-    const hepsiTamam = Array.from(checks).every(c => c.checked);
-    if(!hepsiTamam) { alert("Tüm maddeleri işaretlemeden gönderemezsiniz!"); return false; }
+    if(checks.length > 0 && !Array.from(checks).every(c => c.checked)) {
+        alert("Tüm maddeleri işaretlemeden gönderemezsiniz!"); return false;
+    }
+    alert("✅ Kayıt Başarıyla Gönderildi!");
+    setTimeout(() => location.reload(), 2000);
     return true;
 }
 </script>
