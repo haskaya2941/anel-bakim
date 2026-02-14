@@ -22,7 +22,9 @@
 </head>
 <body>
 <div class="card">
-    <div class="header"><h2>BAKIM FORMU</h2><div id="m_kod" class="etiket">---</div><div class="v-num">v86</div></div>
+    <div class="header">
+    <h2 id="baslik">BAKIM FORMU</h2>
+    <div id="m_kod" class="etiket">---</div><div class="v-num">v86</div></div>
     <div class="content">
         <div id="login-section">
             <label>Personel / Şifre:</label>
@@ -60,8 +62,12 @@ window.onload = function() {
     let code = path.replace(".html", "").trim();
     currentMakine = qrs[code] || (data[code.toUpperCase()] ? code.toUpperCase() : null);
     if (currentMakine) {
-        document.getElementById('m_kod').innerText = currentMakine;
+    document.getElementById('m_kod').innerText = currentMakine;
+
+    // 🔥 BAKIM FORMU yerine ekipman adı yaz
+    document.getElementById('baslik').innerText = data[currentMakine].ad;
     }
+
 };
 
 function giris() {
