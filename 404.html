@@ -9,25 +9,25 @@
         .header { background: #009688; color: white; padding: 20px; text-align: center; }
         .etiket { background: #FFD600; color: #333; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 14px; display:inline-block; margin-top:5px; }
         select, input, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        button { background: #009688; color: white; font-weight: bold; cursor: pointer; }
+        button { background: #009688; color: white; font-weight: bold; cursor: pointer; height: 50px; }
         .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eee; }
         input[type="checkbox"] { width: 25px; height: 25px; margin-right: 10px; flex-shrink: 0; }
         .hidden { display: none; }
         .periyot-baslik { background: #B2DFDB; padding: 8px; border-radius: 5px; font-size: 14px; margin-top: 15px; color: #004D40; font-weight: bold; }
-        #manuel-kutu { background: #FFF3E0; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #FFB74D; }
+        #manuel-kutu { background: #FFF3E0; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #FFB74D; display:none; }
     </style>
 </head>
 <body>
 <div class="card">
     <div class="header">
-        <h2 id="m_baslik" style="margin:0; font-size:18px;">BAKIM FORMU</h2>
+        <h2 id="m_baslik" style="margin:0; font-size:18px;">YÜKLENİYOR...</h2>
         <div id="m_kod" class="etiket">---</div>
     </div>
     <div class="content" style="padding:20px;">
         
-        <div id="manuel-kutu" class="hidden">
-            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100;">⚠️ Aranan QR bulunamadı.</p>
-            <select id="manuel-secim" onchange="makineYukle(this.value)"><option value="">Listeden Seçiniz...</option></select>
+        <div id="manuel-kutu">
+            <p style="margin:0 0 5px 0; font-size:14px; color:#E65100;">⚠️ Aranan QR: <b id="aranan-txt"></b> bulunamadı.</p>
+            <select id="manuel-secim" onchange="manuelSec()"><option value="">Listeden Seçiniz...</option></select>
         </div>
 
         <div id="login-section" class="hidden">
@@ -42,7 +42,7 @@
             <button onclick="giris()">GİRİŞ YAP</button>
         </div>
 
-        <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbwkmU2nGyNK4Cpu_dHJ_1RlfsD955ez1JPNpgmuQUcUqsIyAkT4VJb8bKpGPC1QwMLQ/exec" target="gizli_frame" onsubmit="return val()">
+        <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbyUBmqtWUdCGIXp6WXEBuUkqwWhN5W38K7q1prjb-zKaHr7dr4Pyoc8Hxh9K_rYmjT3/exec" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" name="Makine" id="makine_id">
             <input type="hidden" name="MakineAdi" id="makine_adi_gizli">
             <input type="hidden" name="Personel" id="hidden_user">
@@ -60,8 +60,8 @@
 
             <div id="madde_konteynir" class="hidden">
                 <div id="madde_listesi"></div>
-                <textarea name="Notlar" rows="3" placeholder="Varsa notunuzu yazın..."></textarea>
-                <button type="submit" style="background:#D32F2F; margin-top:15px;">✅ KAYDET</button>
+                <textarea name="Notlar" rows="3" placeholder="Notlar..."></textarea>
+                <button type="submit" style="background:#D32F2F;">✅ KAYDET</button>
             </div>
         </form>
     </div>
@@ -69,8 +69,12 @@
 <iframe name="gizli_frame" style="display:none;"></iframe>
 
 <script>
-    const hafiza = {"S-APR.A33.025": {"ad": "4'lü Yüzey İkaz Lambası (VBE) Kapak Çakma Apr.", "Günlük": ["Cihaz temizliği", "Sensör kontrolü"], "Haftalık": ["Piston yağlama"], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}, "S-APR.A33.174": {"ad": "Dometic Gövde Terminal Çakma Aparatı", "Günlük": ["Basınç kontrolü"], "Haftalık": ["Kızak temizliği"], "Aylık": [], "3 Aylık": [], "6 Aylık": [], "Yıllık": []}};
-    const qrMap = {"1": "S-APR.A33.025", "2": "S-APR.A33.174"};
+    // ÖRNEK VERİLER (Senin Excel'deki 266 makinenin tamamını buraya eklemelisin ustam)
+    const hafiza = {
+        "S-APR.A33.025": {"ad": "4'lü Yüzey İkaz Lambası Kapak Çakma", "Günlük": ["Hava kaçağı kontrolü", "Fikstür temizliği"], "Haftalık": ["Piston yağlama"]},
+        "S-MKN.A01.11.09": {"ad": "Taşınabilir Konveyör", "Günlük": ["Bant kontrolü"], "Haftalık": ["Motor kontrolü"]}
+    };
+    const qrMap = {"1": "S-APR.A33.025", "120": "S-MKN.A01.11.09"};
 
     window.onload = function() {
         const select = document.getElementById("manuel-secim");
@@ -78,28 +82,43 @@
             let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + hafiza[k].ad.substring(0,30); select.appendChild(opt);
         });
 
-        let shortCode = window.location.pathname.split("/").pop().replace(".html", "").trim();
+        // --- URL'DEN KOD ÇEKME SİSTEMİ ---
+        let urlPath = window.location.pathname;
+        // Eğer URL /anel-bakim/120 şeklindeyse son parçayı al
+        let segments = urlPath.split('/').filter(s => s.length > 0);
+        let shortCode = segments[segments.length - 1] || "";
+        shortCode = shortCode.replace(".html", "").trim();
+        
+        document.getElementById("aranan-txt").innerText = shortCode;
+
         let targetCode = qrMap[shortCode] || (hafiza[shortCode.toUpperCase()] ? shortCode.toUpperCase() : null);
 
-        if (targetCode) makineYukle(targetCode);
-        else document.getElementById("manuel-kutu").classList.remove("hidden");
+        if (targetCode) {
+            makineYukle(targetCode);
+        } else {
+            document.getElementById("m_baslik").innerText = "SİSTEME GİRİŞ";
+            document.getElementById("manuel-kutu").style.display = "block";
+        }
     };
 
     function makineYukle(kod) {
-        document.getElementById("m_baslik").innerText = hafiza[kod].ad;
+        const veri = hafiza[kod];
+        document.getElementById("m_baslik").innerText = veri.ad;
         document.getElementById("m_kod").innerText = kod;
         document.getElementById("makine_id").value = kod;
-        document.getElementById("makine_adi_gizli").value = hafiza[kod].ad;
-        document.getElementById("manuel-kutu").classList.add("hidden");
+        document.getElementById("makine_adi_gizli").value = veri.ad;
+        document.getElementById("manuel-kutu").style.display = "none";
         document.getElementById("login-section").classList.remove("hidden");
     }
+
+    function manuelSec() { let k = document.getElementById("manuel-secim").value; if(k) makineYukle(k); }
 
     function giris() {
         if(document.getElementById("pass").value === "1234") {
             document.getElementById("hidden_user").value = document.getElementById("p_name").value;
             document.getElementById("login-section").classList.add("hidden");
             document.getElementById("main-form").classList.remove("hidden");
-        } else { alert("Hatalı Şifre!"); }
+        } else { alert("Şifre Hatalı!"); }
     }
 
     function periyotDegisti() {
@@ -114,11 +133,11 @@
         if(p !== "Günlük") keys.push(p);
 
         keys.forEach(k => {
-            if(hafiza[kod][k] && hafiza[kod][k].length > 0) {
+            if(hafiza[kod][k]) {
                 liste.innerHTML += `<div class="periyot-baslik">${k} Kontrolleri</div>`;
                 hafiza[kod][k].forEach(m => {
-                    // name="Yapilan_Islemler" eklendi!
-                    liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" name="Yapilan_Islemler" value="${m}"><span>${m}</span></div>`;
+                    // name="Yapilan_Islemler" BURASI ÇOK ÖNEMLİ
+                    liste.innerHTML += `<div class="item"><input type="checkbox" class="ck" name="Yapilan_Islemler" value="[${k}] ${m}"><span>${m}</span></div>`;
                 });
             }
         });
@@ -130,7 +149,7 @@
             alert("⚠️ Tüm maddeleri işaretlemelisiniz!"); return false;
         }
         alert("✅ Kayıt Gönderildi!");
-        setTimeout(()=>location.reload(), 2000);
+        setTimeout(()=>location.reload(), 1500);
         return true;
     }
 </script>
