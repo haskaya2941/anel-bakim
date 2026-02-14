@@ -22,16 +22,16 @@
 <body>
 <div class="card">
     <div class="header" id="ana-header">
-        <h2 id="m_baslik" style="margin:0; font-size:18px;">YÜKLENİYOR...</h2>
+        <h2 id="m_baslik" style="margin:0; font-size:18px;">BAKIM FORMU</h2>
         <div id="m_kod" class="etiket">---</div>
     </div>
     <div class="content" style="padding:20px;">
         <div id="manuel-kutu">
-            <p style="color:#E65100; font-weight:bold;">⚠️ QR Bulunamadı!</p>
+            <p style="color:#E65100; font-weight:bold;">⚠️ Aranan QR Bulunamadı!</p>
             <select id="manuel-secim" onchange="makineYukle(this.value)"><option value="">Listeden Seçiniz...</option></select>
         </div>
         <div id="login-section" class="hidden">
-            <label>Personel Seçiniz:</label>
+            <label>Personel:</label>
             <select id="p_name">
                 <option value="Hasan Kaya">Hasan Kaya</option>
                 <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
@@ -39,13 +39,14 @@
                 <option value="Operatör">Operatör</option>
             </select>
             <label>Şifre:</label>
-            <input type="number" id="pass" placeholder="1234">
+            <input type="number" id="pass" placeholder="Şifre (1234)">
             <button onclick="giris()">GİRİŞ YAP</button>
         </div>
         <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbxwbaWlONxDlF997CP4wF7GfyG38kb4okyl_MlNqd9LOHpNpS5HkQrGsFRNDvLqix5D/exec" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" name="Makine" id="makine_id">
             <input type="hidden" name="MakineAdi" id="makine_adi_gizli">
             <input type="hidden" name="Personel" id="hidden_user">
+            
             <label>Bakım Periyodu:</label>
             <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
                 <option value="">Seçiniz...</option>
@@ -60,7 +61,7 @@
                 <div id="madde_listesi"></div>
                 <label style="margin-top:15px; font-weight:bold;">Notlar / Arıza:</label>
                 <textarea name="Notlar" rows="3"></textarea>
-                <button type="submit" style="background:#D32F2F; margin-top:15px;">✅ KAYDI TAMAMLA</button>
+                <button type="submit" style="background:#D32F2F;">✅ KAYDI TAMAMLA</button>
             </div>
         </form>
     </div>
@@ -73,12 +74,11 @@
     window.onload = function() {
         const select = document.getElementById("manuel-secim");
         Object.keys(hafiza).sort().forEach(k => {
-            let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + hafiza[k].ad.substring(0,30); select.appendChild(opt);
+            let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + hafiza[k].ad; select.appendChild(opt);
         });
 
-        let pathParts = window.location.pathname.split('/').filter(s => s.length > 0);
-        let code = pathParts[pathParts.length - 1] || "";
-        code = code.replace(".html", "").trim();
+        let path = window.location.pathname.split('/').filter(s => s.length > 0).pop() || "";
+        code = path.replace(".html", "").trim();
         
         let target = qrMap[code] || (hafiza[code.toUpperCase()] ? code.toUpperCase() : null);
 
@@ -110,10 +110,14 @@
         const liste = document.getElementById("madde_listesi");
         const kod = document.getElementById("makine_id").value;
         liste.innerHTML = "";
-        if(!p) return;
+        
+        if(!p) {
+            document.getElementById("madde_konteynir").classList.add("hidden");
+            return;
+        }
         document.getElementById("madde_konteynir").classList.remove("hidden");
 
-        // --- ÖZEL İSTEDİĞİN PERİYOT MANTIĞI ---
+        // --- TAM İSTEDİĞİN BİRLEŞTİRME MANTIĞI ---
         let keys = [];
         if(p == "Günlük") keys = ["Günlük"];
         else if(p == "Haftalık") keys = ["Günlük", "Haftalık"];
@@ -137,7 +141,7 @@
         if(cks.length > 0 && !Array.from(cks).every(c=>c.checked)) {
             alert("🛑 Tüm maddeleri işaretlemeden gönderemezsiniz!"); return false;
         }
-        alert("✅ Kayıt Başarıyla Gönderildi!");
+        alert("✅ Kayıt Gönderildi!");
         setTimeout(()=>location.reload(), 2000);
         return true;
     }
