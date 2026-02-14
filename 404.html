@@ -22,12 +22,12 @@
 <body>
 <div class="card">
     <div class="header" id="ana-header">
-        <h2 id="m_baslik" style="margin:0; font-size:18px;">BAKIM SİSTEMİ</h2>
+        <h2 id="m_baslik" style="margin:0; font-size:18px;">YÜKLENİYOR...</h2>
         <div id="m_kod" class="etiket">---</div>
     </div>
     <div class="content" style="padding:20px;">
         <div id="manuel-kutu">
-            <p style="color:#E65100; font-weight:bold;">⚠️ Aranan QR Bulunamadı!</p>
+            <p style="color:#E65100; font-weight:bold;">⚠️ QR Bulunamadı!</p>
             <select id="manuel-secim" onchange="makineYukle(this.value)"><option value="">Listeden Seçiniz...</option></select>
         </div>
         <div id="login-section" class="hidden">
@@ -35,13 +35,12 @@
             <select id="p_name">
                 <option value="Hasan Kaya">Hasan Kaya</option>
                 <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
-                <option value="Mehmet Demir">Mehmet Demir</option>
                 <option value="Sami Kaya">Sami Kaya</option>
                 <option value="Operatör">Operatör</option>
             </select>
             <label>Şifre:</label>
-            <input type="number" id="pass" placeholder="Şifre (1234)">
-            <button onclick="giris()">GİRİŞ YAP VE BAŞLA</button>
+            <input type="number" id="pass" placeholder="1234">
+            <button onclick="giris()">GİRİŞ YAP</button>
         </div>
         <form id="main-form" class="hidden" method="POST" action="https://script.google.com/macros/s/AKfycbxwbaWlONxDlF997CP4wF7GfyG38kb4okyl_MlNqd9LOHpNpS5HkQrGsFRNDvLqix5D/exec" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" name="Makine" id="makine_id">
@@ -52,15 +51,15 @@
                 <option value="">Seçiniz...</option>
                 <option value="Günlük">Günlük Bakım</option>
                 <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
-                <option value="Aylık">Aylık Bakım (+H+G)</option>
-                <option value="3 Aylık">3 Aylık Bakım</option>
-                <option value="6 Aylık">6 Aylık Bakım</option>
-                <option value="Yıllık">Yıllık Bakım</option>
+                <option value="Aylık">Aylık Bakım (+Haftalık)</option>
+                <option value="3 Aylık">3 Aylık Bakım (+Aylık)</option>
+                <option value="6 Aylık">6 Aylık Bakım (+3 Aylık)</option>
+                <option value="Yıllık">Yıllık Bakım (+6 Aylık)</option>
             </select>
             <div id="madde_konteynir" class="hidden">
                 <div id="madde_listesi"></div>
                 <label style="margin-top:15px; font-weight:bold;">Notlar / Arıza:</label>
-                <textarea name="Notlar" rows="3" placeholder="Varsa notunuz..."></textarea>
+                <textarea name="Notlar" rows="3"></textarea>
                 <button type="submit" style="background:#D32F2F; margin-top:15px;">✅ KAYDI TAMAMLA</button>
             </div>
         </form>
@@ -74,7 +73,7 @@
     window.onload = function() {
         const select = document.getElementById("manuel-secim");
         Object.keys(hafiza).sort().forEach(k => {
-            let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + hafiza[k].ad; select.appendChild(opt);
+            let opt = document.createElement("option"); opt.value = k; opt.text = k + " - " + hafiza[k].ad.substring(0,30); select.appendChild(opt);
         });
 
         let pathParts = window.location.pathname.split('/').filter(s => s.length > 0);
@@ -114,8 +113,14 @@
         if(!p) return;
         document.getElementById("madde_konteynir").classList.remove("hidden");
 
-        let keys = ["Günlük"]; // GÜNLÜK HER ZAMAN ÇIKSIN
-        if(p !== "Günlük") keys.push(p);
+        // --- ÖZEL İSTEDİĞİN PERİYOT MANTIĞI ---
+        let keys = [];
+        if(p == "Günlük") keys = ["Günlük"];
+        else if(p == "Haftalık") keys = ["Günlük", "Haftalık"];
+        else if(p == "Aylık") keys = ["Haftalık", "Aylık"];
+        else if(p == "3 Aylık") keys = ["Aylık", "3 Aylık"];
+        else if(p == "6 Aylık") keys = ["3 Aylık", "6 Aylık"];
+        else if(p == "Yıllık") keys = ["6 Aylık", "Yıllık"];
 
         keys.forEach(k => {
             if(hafiza[kod][k] && hafiza[kod][k].length > 0) {
