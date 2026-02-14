@@ -27,15 +27,16 @@
     </div>
     <div class="content" style="padding:20px;">
         <div id="manuel-kutu">
-            <p style="color:#E65100; font-weight:bold;">⚠️ Aranan QR Bulunamadı!</p>
+            <p style="color:#E65100; font-weight:bold;">⚠️ QR Tanınmadı!</p>
             <select id="manuel-secim" onchange="makineYukle(this.value)"><option value="">Listeden Seçiniz...</option></select>
         </div>
         <div id="login-section" class="hidden">
-            <label>Personel:</label>
+            <label>Personel Seçiniz:</label>
             <select id="p_name">
                 <option value="Hasan Kaya">Hasan Kaya</option>
-                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
                 <option value="Sami Kaya">Sami Kaya</option>
+                <option value="Ahmet Yılmaz">Ahmet Yılmaz</option>
+                <option value="Mehmet Demir">Mehmet Demir</option>
                 <option value="Operatör">Operatör</option>
             </select>
             <label>Şifre:</label>
@@ -47,21 +48,22 @@
             <input type="hidden" name="MakineAdi" id="makine_adi_gizli">
             <input type="hidden" name="Personel" id="hidden_user">
             
-            <label>Bakım Periyodu:</label>
+            <label style="font-weight:bold;">Bakım Periyodu:</label>
             <select name="Periyot" id="periyot_sec" onchange="periyotDegisti()" required>
                 <option value="">Seçiniz...</option>
                 <option value="Günlük">Günlük Bakım</option>
                 <option value="Haftalık">Haftalık Bakım (+Günlük)</option>
-                <option value="Aylık">Aylık Bakım (+Haftalık)</option>
-                <option value="3 Aylık">3 Aylık Bakım (+Aylık)</option>
-                <option value="6 Aylık">6 Aylık Bakım (+3 Aylık)</option>
-                <option value="Yıllık">Yıllık Bakım (+6 Aylık)</option>
+                <option value="Aylık">Aylık Bakım (+Haftalık+Günlük)</option>
+                <option value="3 Aylık">3 Aylık Bakım (+Hepsi)</option>
+                <option value="6 Aylık">6 Aylık Bakım (+Hepsi)</option>
+                <option value="Yıllık">Yıllık Bakım (+Hepsi)</option>
             </select>
+
             <div id="madde_konteynir" class="hidden">
                 <div id="madde_listesi"></div>
-                <label style="margin-top:15px; font-weight:bold;">Notlar / Arıza:</label>
-                <textarea name="Notlar" rows="3"></textarea>
-                <button type="submit" style="background:#D32F2F;">✅ KAYDI TAMAMLA</button>
+                <label style="margin-top:15px; font-weight:bold;">Notlar / Arıza Durumu:</label>
+                <textarea name="Notlar" rows="3" placeholder="Parça değişimi vb. notunuz varsa yazın..."></textarea>
+                <button type="submit" style="background:#D32F2F; margin-top:15px;">✅ KAYDI TAMAMLA</button>
             </div>
         </form>
     </div>
@@ -78,8 +80,7 @@
         });
 
         let path = window.location.pathname.split('/').filter(s => s.length > 0).pop() || "";
-        code = path.replace(".html", "").trim();
-        
+        let code = path.replace(".html", "").trim();
         let target = qrMap[code] || (hafiza[code.toUpperCase()] ? code.toUpperCase() : null);
 
         if (target) makineYukle(target);
@@ -117,14 +118,21 @@
         }
         document.getElementById("madde_konteynir").classList.remove("hidden");
 
-        // --- TAM İSTEDİĞİN BİRLEŞTİRME MANTIĞI ---
+        // --- TAM İSTEDİĞİN ZİNCİRLEME MANTIK ---
         let keys = [];
-        if(p == "Günlük") keys = ["Günlük"];
-        else if(p == "Haftalık") keys = ["Günlük", "Haftalık"];
-        else if(p == "Aylık") keys = ["Haftalık", "Aylık"];
-        else if(p == "3 Aylık") keys = ["Aylık", "3 Aylık"];
-        else if(p == "6 Aylık") keys = ["3 Aylık", "6 Aylık"];
-        else if(p == "Yıllık") keys = ["6 Aylık", "Yıllık"];
+        if (p == "Günlük") {
+            keys = ["Günlük"];
+        } else if (p == "Haftalık") {
+            keys = ["Günlük", "Haftalık"];
+        } else if (p == "Aylık") {
+            keys = ["Günlük", "Haftalık", "Aylık"];
+        } else if (p == "3 Aylık") {
+            keys = ["Günlük", "Haftalık", "Aylık", "3 Aylık"];
+        } else if (p == "6 Aylık") {
+            keys = ["Günlük", "Haftalık", "Aylık", "3 Aylık", "6 Aylık"];
+        } else if (p == "Yıllık") {
+            keys = ["Günlük", "Haftalık", "Aylık", "3 Aylık", "6 Aylık", "Yıllık"];
+        }
 
         keys.forEach(k => {
             if(hafiza[kod][k] && hafiza[kod][k].length > 0) {
@@ -139,9 +147,9 @@
     function val() {
         const cks = document.querySelectorAll(".ck");
         if(cks.length > 0 && !Array.from(cks).every(c=>c.checked)) {
-            alert("🛑 Tüm maddeleri işaretlemeden gönderemezsiniz!"); return false;
+            alert("🛑 Tüm maddeleri işaretlemeden kaydı tamamlayamazsınız!"); return false;
         }
-        alert("✅ Kayıt Gönderildi!");
+        alert("✅ Kayıt Başarıyla Gönderildi!");
         setTimeout(()=>location.reload(), 2000);
         return true;
     }
