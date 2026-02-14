@@ -2,47 +2,37 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anel Bakım Sistemi</title>
+    <title>Anel Bakım v85</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Roboto', sans-serif; background: #E0F2F1; padding: 15px; margin: 0; }
-        .card { background: white; border-radius: 15px; max-width: 450px; margin: auto; overflow: hidden; border-top: 5px solid #009688; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #20B2AA, #009688); color: white; padding: 25px; text-align: center; position:relative; }
-        .header h2 { margin: 0; font-size: 18px; }
-        .etiket { background: #FFD600; color: #333; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 13px; display:inline-block; margin-top:10px; }
+        .card { background: white; border-radius: 15px; max-width: 450px; margin: auto; border-top: 6px solid #009688; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: #009688; color: white; padding: 25px; text-align: center; position:relative; }
+        .etiket { background: #FFD600; color: #333; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display:inline-block; margin-top:10px; }
         .content { padding: 25px; }
         label { display: block; margin-top: 15px; font-weight: 600; color: #00796B; }
         select, input, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #B2DFDB; font-size: 16px; box-sizing: border-box; }
-        button { width: 100%; padding: 14px; margin-top: 20px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-login { background: #00897B; color: white; }
-        .btn-submit { background: linear-gradient(135deg, #20B2AA, #009688); color: white; }
-        .item-group { margin-top: 20px; background: #F0F9F8; padding: 15px; border-radius: 10px; border-left: 4px solid #009688; }
-        .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #E0F2F1; }
-        input[type="checkbox"] { width: 26px; height: 26px; margin-right: 12px; accent-color: #009688; flex-shrink: 0; }
-        .p-baslik { font-weight: bold; color: #00796B; display: block; border-bottom: 1px solid #B2DFDB; font-size: 13px; margin-bottom: 5px; }
+        button { width: 100%; padding: 15px; margin-top: 20px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; background: #009688; color:white; }
+        .item-group { margin-top: 20px; background: #F1F8F7; padding: 15px; border-radius: 10px; border-left: 5px solid #009688; }
+        .item { display: flex; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #E0F2F1; }
+        input[type="checkbox"] { width: 28px; height: 28px; margin-right: 15px; accent-color: #009688; flex-shrink: 0; }
+        .v-num { position: absolute; bottom: 5px; right: 10px; font-size: 11px; opacity: 0.7; }
         .hidden { display: none; }
-        .v-num { position: absolute; bottom: 5px; right: 10px; font-size: 10px; opacity: 0.5; }
     </style>
 </head>
 <body>
 <div class="card">
-    <div class="header"><h2 id="m_baslik">BAKIM FORMU</h2><div id="m_kod" class="etiket">---</div><div class="v-num">v79</div></div>
+    <div class="header"><h2>BAKIM FORMU</h2><div id="m_kod" class="etiket">---</div><div class="v-num">SÜRÜM: v85</div></div>
     <div class="content">
         <div id="login-section">
-            <label>Personel:</label>
-            <select id="p_name">
-                <option value="Harun Özüpek">Harun Özüpek</option>
-                <option value="Fatih Kır">Fatih Kır</option>
-                <option value="Mehmet Emin Tunçay">Mehmet Emin Tunçay</option>
-                <option value="Cengiz Küçük">Cengiz Küçük</option>
-                <option value="Hasan Kaya">Hasan Kaya</option>
-            </select>
+            <label>Personel Seçiniz:</label>
+            <select id="p_name"><option value="Harun Özüpek">Harun Özüpek</option><option value="Fatih Kır">Fatih Kır</option><option value="Mehmet Emin Tunçay">Mehmet Emin Tunçay</option><option value="Cengiz Küçük">Cengiz Küçük</option><option value="Hasan Kaya">Hasan Kaya</option></select>
             <input type="number" id="pass" placeholder="Şifre" inputmode="numeric">
-            <button type="button" class="btn-login" onclick="giris()">SİSTEME GİRİŞ YAP</button>
+            <button type="button" onclick="giris()">SİSTEME GİRİŞ YAP</button>
         </div>
-        <form id="main-form" class="hidden" action="https://script.google.com/macros/s/AKfycbxVYUW2LlUGBeyQLIhilAkrReNjHd_cVY5qU21yJHy1vauxen_y9CCZJ9i-gXjDt5ID/exec" method="POST" target="gizli_frame" onsubmit="return val()">
+        <form id="main-form" class="hidden" action="https://script.google.com/macros/s/AKfycbzE-2awt-deN72JIu7hXts8PQjtefWgf1W8wQOc5EAsAP5591Il4GxwZ74C2YGPuQwn/execBURAYA_YENI_URL_GELECEK" method="POST" target="gizli_frame" onsubmit="return val()">
             <input type="hidden" name="Makine" id="h_m"><input type="hidden" name="MakineAdi" id="h_ma"><input type="hidden" name="Personel" id="h_u">
-            <label>Periyot:</label>
+            <label>Bakım Periyodu:</label>
             <select id="pt" name="Periyot" required onchange="renderItems()">
                 <option value="">Seçiniz...</option>
                 <option value="Günlük">Günlük Bakım</option>
@@ -53,8 +43,8 @@
                 <option value="Yıllık">Yıllık Bakım (+Tümü)</option>
             </select>
             <div id="dynamic-items"></div>
-            <textarea name="Notlar" rows="3" placeholder="Arıza / Notlar..."></textarea>
-            <button type="submit" class="btn-submit" id="btn-kaydet">✅ KAYDI TAMAMLA</button>
+            <textarea name="Notlar" rows="2" placeholder="Notlar..."></textarea>
+            <button type="submit" id="btn-kaydet">✅ KAYDI TAMAMLA</button>
         </form>
     </div>
 </div>
@@ -69,7 +59,6 @@ window.onload = function() {
     let code = path.replace(".html", "").trim();
     let target = qrs[code] || (data[code.toUpperCase()] ? code.toUpperCase() : null);
     if (target) {
-        document.getElementById('m_baslik').innerText = data[target].ad;
         document.getElementById('m_kod').innerText = target;
         document.getElementById('h_m').value = target;
         document.getElementById('h_ma').value = data[target].ad;
@@ -77,9 +66,8 @@ window.onload = function() {
 };
 
 function giris() {
-    const user = document.getElementById('p_name').value;
-    if(creds[user] === document.getElementById('pass').value) {
-        document.getElementById('h_u').value = user;
+    if(creds[document.getElementById('p_name').value] === document.getElementById('pass').value) {
+        document.getElementById('h_u').value = document.getElementById('p_name').value;
         document.getElementById('login-section').style.display='none';
         document.getElementById('main-form').classList.remove('hidden');
     } else { alert("❌ Şifre Hatalı!"); }
@@ -100,8 +88,8 @@ function renderItems() {
     else if(pKey === "Yıllık") keys = ["Günlük", "Haftalık", "Aylık", "3 Aylık", "6 Aylık", "Yıllık"];
 
     keys.forEach(k => {
-        if(data[mKey][k]) {
-            let html = `<div class="item-group"><span class="p-baslik">${k.toUpperCase()} KONTROLLERİ</span>`;
+        if(data[mKey][k] && data[mKey][k].length > 0) {
+            let html = `<div class="item-group"><b>${k.toUpperCase()}</b>`;
             data[mKey][k].forEach(m => {
                 html += `<div class="item"><input type="checkbox" name="Yapilan_Islemler" class="ck" value="${m.idx}"><span>${m.txt}</span></div>`;
             });
@@ -115,9 +103,7 @@ function val() {
     if(cks.length > 0 && !Array.from(cks).every(c => c.checked)) {
         alert("🛑 Tüm maddeleri işaretleyin!"); return false;
     }
-    document.getElementById('btn-kaydet').innerText = "GÖNDERİLİYOR...";
-    document.getElementById('btn-kaydet').disabled = true;
-    alert("✅ Kayıt başarılı! Gönderiliyor...");
+    alert("✅ Kayıt başarılı! Makinenin kendi satırı güncelleniyor...");
     setTimeout(() => location.reload(), 2000);
     return true;
 }
