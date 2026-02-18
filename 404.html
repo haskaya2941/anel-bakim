@@ -142,7 +142,7 @@ async function veriyiGonder() {
     cks.forEach(c => formData.append("Yapilan_Islemler", c.value));
 
     try {
-        await fetch("https://script.google.com/macros/s/AKfycbx-nLc8r8ySOfuojMXy82M2DLEko-qrCCLNgwyf62cmnx4GjeTzZjnZuMn32olcnWkh/exec", { method: "POST", body: formData, mode: "no-cors" });
+        await fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: formData, mode: "no-cors" });
         alert("✅ Kayıt Başarıyla Gönderildi!");
         location.reload();
     } catch (e) {
