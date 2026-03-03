@@ -38,7 +38,7 @@
             <button type="button" style="width:100%; padding:15px; margin-top:20px; border-radius:8px; background:#455a64; color:white; border:none; font-weight:bold;" onclick="giris()">SİSTEME GİRİŞ</button>
         </div>
         <div id="main-form" class="hidden">
-            <div id="new-msg" class="alert hidden">⚠️ Makine sistemde kayıtlı değil. Sadece notla kayıt yapılacaktır.</div>
+            <div id="new-msg" class="alert hidden">⚠️ Makine kayıtlı değil. Sadece notla kayıt yapılacaktır.</div>
             <label>Bakım Periyodu:</label>
             <select id="pt" onchange="renderItems()">
                 <option value="">Seçiniz...</option><option value="Günlük">Günlük Bakım</option>
@@ -59,10 +59,24 @@ const creds = {'Harun Özüpek':'1354','Fatih Kır':'2111','Mehmet Emin Tunçay'
 let currentMakine = "";
 
 window.onload = function() {
-    let path = window.location.pathname.split('/').filter(Boolean).pop() || "";
-    let code = path.replace(".html", "").trim().toUpperCase();
-    let foundCode = qrs[code] || (data[code] ? code : null);
-    if (foundCode) { document.getElementById('manual_kod').value = foundCode; kodDegisti(); }
+    // URL'den kodu çekme (Akıllı Filtre)
+    const urlParams = new URLSearchParams(window.location.search);
+    let code = urlParams.get('code') || urlParams.get('id');
+
+    if (!code) {
+        let pathParts = window.location.pathname.split('/').filter(Boolean);
+        let lastPart = pathParts.pop() || "";
+        code = lastPart.replace(".html", "").trim().toUpperCase();
+    }
+
+    // Eğer kod "INDEX" ise veya boşsa işlem yapma
+    if (code && code !== "INDEX") {
+        let foundCode = qrs[code] || (data[code] ? code : null);
+        if (foundCode) {
+            document.getElementById('manual_kod').value = foundCode;
+            kodDegisti();
+        }
+    }
 };
 
 function kodDegisti() {
@@ -88,7 +102,6 @@ async function giris() {
         document.getElementById('login-section').style.display='none';
         document.getElementById('main-form').classList.remove('hidden');
 
-        // --- 🔴 BAŞLANGIÇ BİLDİRİMİ SİNYALİ ---
         const startData = new URLSearchParams();
         startData.append("Durum", "BAŞLADI"); 
         startData.append("Personel", pName);
@@ -97,11 +110,8 @@ async function giris() {
 
         try {
             fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: startData, mode: "no-cors" });
-            console.log("Başlangıç sinyali gönderildi.");
-        } catch (e) { console.log("Sinyal hatası"); }
-    } else { 
-        alert("❌ Şifre Hatalı!"); 
-    }
+        } catch (e) { console.log("Hata"); }
+    } else { alert("❌ Şifre Hatalı!"); }
 }
 
 function renderItems() {
@@ -146,7 +156,7 @@ async function veriyiGonder() {
     try {
         await fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: formData, mode: "no-cors" });
         alert("✅ Kayıt Başarıyla Gönderildi!"); location.reload();
-    } catch (e) { alert("❌ Hata oluştu!"); btn.disabled = false; btn.innerText = "TEKRAR DENE"; }
+    } catch (e) { alert("❌ Hata!"); btn.disabled = false; btn.innerText = "TEKRAR DENE"; }
 }
 </script>
 </body>
