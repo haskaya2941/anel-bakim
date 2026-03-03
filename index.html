@@ -23,7 +23,7 @@
 <div class="card">
     <div class="header">
         <h2 id="baslik">ANEL BAKIM</h2>
-        <input type="text" id="manual_kod" placeholder="KOD GİRİNİZ..." oninput="kodDegisti()" style="text-align:center; text-transform:uppercase; font-weight:bold; border:none; padding:8px; width:85%;">
+        <input type="text" id="manual_kod" placeholder="KOD..." oninput="kodDegisti()" style="text-align:center; text-transform:uppercase; font-weight:bold; border:none; padding:8px; width:85%;">
     </div>
     <div class="content">
         <div id="login-section">
@@ -59,25 +59,17 @@ const qrs = {"🛠️ KABLOLU SINYAL LAMBASI K.C.\nKOD: S-APR.A35.029\n=========
 const creds = {'Harun Özüpek':'1354','Fatih Kır':'2111','Mehmet Emin Tunçay':'2079','Cengiz Küçük':'1353','Hasan Kaya':'2151'};
 let currentMakine = "";
 
-// --- 🟢 QR OKUTUNCA KODU VE ADI BULAN KISIM ---
 window.onload = function() {
     let path = window.location.pathname.split('/').filter(Boolean).pop() || "";
     let code = decodeURIComponent(path).replace(".html", "").trim().toUpperCase();
-    
     const urlParams = new URLSearchParams(window.location.search);
     let finalCode = urlParams.get('code') || urlParams.get('id') || code;
 
-    if (finalCode && finalCode !== "INDEX") {
-        // qrs[numara] -> Asıl kodu bulur (Örn: 265 -> S-MKN...)
-        let actual = qrs[finalCode]; 
-        
-        if (actual) {
-            document.getElementById('manual_kod').value = actual;
-            kodDegisti(); // Koddan ismi bulup başlığa yazar
-        } else if (data[finalCode]) {
-            document.getElementById('manual_kod').value = finalCode;
-            kodDegisti();
-        }
+    if (finalCode && finalCode !== "INDEX" && !finalCode.includes("GITHUB")) {
+        // qrs[numara] varsa asıl kodu al (örn: 265 -> S-MKN...), yoksa ne okuduysa onu yaz.
+        let actual = qrs[finalCode] || (data[finalCode] ? finalCode : finalCode);
+        document.getElementById('manual_kod').value = actual;
+        kodDegisti(); 
     }
 };
 
@@ -85,12 +77,12 @@ function kodDegisti() {
     let val = document.getElementById('manual_kod').value.trim().toUpperCase();
     currentMakine = val;
     if (data[val]) {
-        // BURASI MAKİNE ADINI TEPEDE GÖSTERİR
+        // Makine adını başlığa yazar
         document.getElementById('baslik').innerText = data[val].ad;
         document.getElementById('new-msg').classList.add('hidden');
         renderItems();
     } else if (val.length > 0) {
-        document.getElementById('baslik').innerText = "YENİ MAKİNE";
+        document.getElementById('baslik').innerText = "YENİ MAKİNE (" + val + ")";
         document.getElementById('new-msg').classList.remove('hidden');
     }
 }
@@ -101,10 +93,13 @@ async function giris() {
     if(creds[pName] === document.getElementById('pass').value) {
         document.getElementById('login-section').style.display='none';
         document.getElementById('main-form').classList.remove('hidden');
-
+        
+        // BAŞLANGIÇ BİLDİRİMİ
         const startData = new URLSearchParams();
-        startData.append("Durum", "BAŞLADI"); startData.append("Personel", pName);
-        startData.append("Makine", mKod); startData.append("MakineAdi", data[mKod] ? data[mKod].ad : "YENİ");
+        startData.append("Durum", "BAŞLADI");
+        startData.append("Personel", pName);
+        startData.append("Makine", mKod);
+        startData.append("MakineAdi", data[mKod] ? data[mKod].ad : "YENİ");
         try { fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: startData, mode: "no-cors" }); } catch (e) {}
     } else { alert("❌ Şifre Hatalı!"); }
 }
