@@ -38,13 +38,13 @@
             <button type="button" style="width:100%; padding:15px; margin-top:20px; border-radius:8px; background:#455a64; color:white; border:none; font-weight:bold;" onclick="giris()">SİSTEME GİRİŞ</button>
         </div>
         <div id="main-form" class="hidden">
-            <div id="new-msg" class="alert hidden">⚠️ Makine sistemde kayıtlı değil.</div>
+            <div id="new-msg" class="alert hidden">⚠️ Makine sistemde kayıtlı değil. Sadece not alınacaktır.</div>
             <label>Bakım Periyodu:</label>
             <select id="pt" onchange="renderItems()">
-                <option value="">Seçiniz...</option><option value="Günlük">Günlük</option>
-                <option value="Haftalık">Haftalık</option><option value="Aylık">Aylık</option>
-                <option value="3 Aylık">3 Aylık</option><option value="6 Aylık">6 Aylık</option>
-                <option value="Yıllık">Yıllık</option>
+                <option value="">Seçiniz...</option><option value="Günlük">Günlük Bakım</option>
+                <option value="Haftalık">Haftalık Bakım</option><option value="Aylık">Aylık Bakım</option>
+                <option value="3 Aylık">3 Aylık Bakım</option><option value="6 Aylık">6 Aylık Bakım</option>
+                <option value="Yıllık">Yıllık Bakım</option>
             </select>
             <div id="dynamic-items"></div>
             <label>Notlar:</label>
@@ -66,8 +66,14 @@ window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     let finalCode = urlParams.get('code') || urlParams.get('id') || code;
 
+    // BÜYÜK HARFE ÇEVİR Kİ EŞLEŞME KESİN OLSUN
+    if (finalCode) finalCode = finalCode.toUpperCase();
+
     if (finalCode && finalCode !== "INDEX" && !finalCode.includes("GITHUB")) {
+        // qrs[finalCode] -> QR Numarasını (Örn: 265) Asıl Makine Koduna (Örn: S-MKN) Çevirir
         let actual = qrs[finalCode] || (data[finalCode] ? finalCode : null);
+        
+        // Ekrana numarayı değil asıl kodu yazdırır
         document.getElementById('manual_kod').value = actual ? actual : finalCode;
         kodDegisti(); 
     }
@@ -77,6 +83,7 @@ function kodDegisti() {
     let val = document.getElementById('manual_kod').value.trim().toUpperCase();
     currentMakine = val;
     if (data[val]) {
+        // ASIL MAKİNE ADINI BURADA EKRANA YANSITIR
         document.getElementById('baslik').innerText = data[val].ad;
         document.getElementById('new-msg').classList.add('hidden');
         renderItems();
@@ -94,6 +101,7 @@ async function giris() {
         document.getElementById('login-section').style.display='none';
         document.getElementById('main-form').classList.remove('hidden');
 
+        // BİLDİRİM GÖNDERİMİ
         const startData = new URLSearchParams();
         startData.append("Durum", "BAŞLADI"); 
         startData.append("Personel", pName);
