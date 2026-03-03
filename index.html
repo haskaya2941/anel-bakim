@@ -12,6 +12,7 @@
         select, input, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #cfd8dc; font-size: 16px; box-sizing: border-box; }
         #btn-gonder { width: 100%; padding: 15px; margin-top: 20px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; background: #1a237e; color:white; cursor: pointer; }
         .item-group { margin-top: 15px; background: #e8eaf6; padding: 15px; border-radius: 10px; border-left: 5px solid #1a237e; }
+        .item-group.error { border-left: 5px solid #d32f2f; background: #ffebee; }
         .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d1d9e6; }
         input[type="checkbox"] { width: 24px; height: 24px; margin-right: 12px; flex-shrink: 0; }
         .hidden { display: none; }
@@ -100,7 +101,7 @@ async function giris() {
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('main-form').classList.remove('hidden');
         
-        // 🔴 BİLDİRİM SİNYALİ GÖNDERME
+        // 🔴 BAŞLANGIÇ BİLDİRİMİ
         const startData = new URLSearchParams();
         startData.append("Durum", "BAŞLADI");
         startData.append("Personel", pName);
@@ -118,21 +119,47 @@ function renderItems() {
     container.innerHTML = "";
     if(!pKey || !currentMakine || !data[currentMakine]) return;
     
-    // 🟠 MANTIK: Sadece seçilen periyodun maddelerini göster (Özet madde zaten Excel'de o periyodun başında)
-    if(data[currentMakine][pKey] && data[currentMakine][pKey].length > 0) {
-        let html = `<div class="item-group"><b>${pKey.toUpperCase()} BAKIM LİSTESİ</b>`;
-        data[currentMakine][pKey].forEach(m => {
-            html += `<div class="item"><input type="checkbox" class="ck" value="${m.idx}"><span>${m.txt}</span></div>`;
-        });
-        container.innerHTML += html + "</div>";
-    }
+    // 🟠 BİRİKİMLİ GÖRÜNÜM (Cumulative View)
+    let order = ["Günlük", "Haftalık", "Aylık", "3 Aylık", "6 Aylık", "Yıllık"];
+    let idx = order.indexOf(pKey);
+    let activePeriods = order.slice(0, idx + 1);
+
+    activePeriods.forEach(p => {
+        if(data[currentMakine][p] && data[currentMakine][p].length > 0) {
+            let html = `<div class="item-group" data-period="${p}"><b>${p.toUpperCase()} KONTROLLERİ</b>`;
+            data[currentMakine][p].forEach(m => {
+                html += `<div class="item"><input type="checkbox" class="ck" data-p="${p}" value="${m.idx}"><span>${m.txt}</span></div>`;
+            });
+            container.innerHTML += html + "</div>";
+        }
+    });
 }
 
 async function veriyiGonder() {
-    const cks = document.querySelectorAll('.ck');
-    if(data[currentMakine] && cks.length > 0 && !Array.from(cks).every(c => c.checked)) {
-        alert("🛑 Lütfen tüm maddeleri işaretleyin!"); return;
+    const groups = document.querySelectorAll('.item-group');
+    let hasError = false;
+    let errorPeriod = "";
+
+    // 🔴 İŞARETLENMEMİŞ PERİYOT KONTROLÜ
+    groups.forEach(group => {
+        const cks = group.querySelectorAll('.ck');
+        const allChecked = Array.from(cks).every(c => c.checked);
+        if (!allChecked) {
+            group.classList.add('error');
+            if (!hasError) {
+                hasError = true;
+                errorPeriod = group.getAttribute('data-period');
+            }
+        } else {
+            group.classList.remove('error');
+        }
+    });
+
+    if(hasError) {
+        alert("🛑 DİKKAT: " + errorPeriod.toUpperCase() + " periyodunda işaretlenmemiş maddeler var!");
+        return;
     }
+
     const btn = document.getElementById('btn-gonder');
     btn.innerText = "GÖNDERİLİYOR..."; btn.disabled = true;
 
@@ -141,11 +168,13 @@ async function veriyiGonder() {
     formData.append("Personel", document.getElementById('p_name').value);
     formData.append("Periyot", document.getElementById('pt').value);
     formData.append("Notlar", document.getElementById('f_notlar').value);
-    cks.forEach(c => formData.append("Yapilan_Islemler", c.value));
+    
+    const allCks = document.querySelectorAll('.ck');
+    allCks.forEach(c => formData.append("Yapilan_Islemler", c.value));
 
     try {
         await fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: formData, mode: "no-cors" });
-        alert("✅ Bakım Kaydı Başarıyla Gönderildi!");
+        alert("✅ Tüm Bakım Kayıtları Başarıyla Gönderildi!");
         location.reload();
     } catch (e) {
         alert("❌ Gönderim Hatası!");
