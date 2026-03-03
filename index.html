@@ -16,7 +16,6 @@
         .item { display: flex; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #d1d9e6; }
         input[type="checkbox"] { width: 24px; height: 24px; margin-right: 12px; accent-color: #1a237e; flex-shrink: 0; }
         .hidden { display: none; }
-        .alert { background: #fff3e0; color: #e65100; padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 10px; border: 1px solid #ffb74d; }
     </style>
 </head>
 <body>
@@ -38,7 +37,6 @@
             <button type="button" style="width:100%; padding:15px; margin-top:20px; border-radius:8px; background:#455a64; color:white; border:none; font-weight:bold;" onclick="giris()">SİSTEME GİRİŞ</button>
         </div>
         <div id="main-form" class="hidden">
-            <div id="new-msg" class="alert hidden">⚠️ Makine kayıtlı değil.</div>
             <label>Bakım Periyodu:</label>
             <select id="pt" onchange="renderItems()">
                 <option value="">Seçiniz...</option><option value="Günlük">Günlük</option>
@@ -66,13 +64,14 @@ window.onload = function() {
     let finalCode = urlParams.get('code') || urlParams.get('id') || code;
 
     if (finalCode && finalCode !== "INDEX") {
-        // 🔴 QR NUMARASINI (ÖRN: 128) ASIL MAKİNE KODUNA (S-MKN...) ÇEVİRİR
-        let machineCode = qrs[finalCode];
+        // 🔴 128'İ BURADA ASIL MAKİNE KODUNA ÇEVİRİYORUZ
+        let mappedCode = qrs[finalCode];
         
-        if (machineCode) {
-            document.getElementById('manual_kod').value = machineCode;
-            kodDegisti(); // Asıl ismi başlığa yazar
+        if (mappedCode) {
+            document.getElementById('manual_kod').value = mappedCode;
+            kodDegisti(); // Adı da mavi başlığa çeker
         } else {
+            // Eğer Excel'de QR ID karşılığı yoksa ne okuduysa onu yazar
             document.getElementById('manual_kod').value = finalCode;
             kodDegisti();
         }
@@ -83,29 +82,26 @@ function kodDegisti() {
     let val = document.getElementById('manual_kod').value.trim().toUpperCase();
     currentMakine = val;
     if (data[val]) {
-        // 🔴 MAKİNE ADINI BAŞLIĞA YAZAR
+        // 🔴 MAKİNE ADINI BAŞLIĞA BASAR
         document.getElementById('baslik').innerText = data[val].ad;
-        document.getElementById('new-msg').classList.add('hidden');
+        document.getElementById('new-msg')?.classList.add('hidden');
         renderItems();
     } else if (val.length > 0) {
-        document.getElementById('baslik').innerText = "YENİ MAKİNE (" + val + ")";
-        document.getElementById('new-msg').classList.remove('hidden');
+        document.getElementById('baslik').innerText = "KOD: " + val;
     }
 }
 
 async function giris() {
     const pName = document.getElementById('p_name').value;
-    const mKod = document.getElementById('manual_kod').value.trim().toUpperCase();
     if(creds[pName] === document.getElementById('pass').value) {
         document.getElementById('login-section').style.display='none';
         document.getElementById('main-form').classList.remove('hidden');
         
-        // BAŞLANGIÇ BİLDİRİMİ
         const startData = new URLSearchParams();
         startData.append("Durum", "BAŞLADI");
         startData.append("Personel", pName);
-        startData.append("Makine", mKod);
-        startData.append("MakineAdi", data[mKod] ? data[mKod].ad : "YENİ");
+        startData.append("Makine", currentMakine);
+        startData.append("MakineAdi", data[currentMakine] ? data[currentMakine].ad : "YENİ");
         try { fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: startData, mode: "no-cors" }); } catch (e) {}
     } else { alert("❌ Şifre Hatalı!"); }
 }
@@ -149,7 +145,7 @@ async function veriyiGonder() {
     try {
         await fetch("https://script.google.com/macros/s/AKfycbz9AwdaGX7XPy8lNHwuPnKAABKa-Ztf4kuIL6V8NbLl7-550u39PvFCp3vamLCND8VL/exec", { method: "POST", body: formData, mode: "no-cors" });
         alert("✅ Kayıt Gönderildi!"); location.reload();
-    } catch (e) { alert("❌ Hata!"); btn.disabled = false; btn.innerText = "TEKRAR DENE"; }
+    } catch (e) { alert("❌ Hata!"); btn.disabled = false; }
 }
 </script>
 </body>
