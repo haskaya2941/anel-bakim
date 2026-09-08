@@ -175,10 +175,6 @@ function fotoSecildi(event) {
 }
 
 async function veriyiGonder() {
-    if (!currentMakine || !data[currentMakine]) {
-        alert("❌ Geçerli bir makine kodu seçilmedi.");
-        return;
-    }
     const groups = document.querySelectorAll('.item-group');
     let hasError = false;
     groups.forEach(group => {
@@ -190,33 +186,24 @@ async function veriyiGonder() {
 
     if(hasError) { alert("🛑 İşaretlenmemiş maddeler var!"); return; }
 
-    const fields = {
-        Makine: currentMakine,
-        MakineAdi: (data[currentMakine] && data[currentMakine].ad) || "",
-        Personel: document.getElementById('p_name').value,
-        Periyot: document.getElementById('pt').value,
-        Notlar: document.getElementById('f_notlar').value,
-    };
-    if (base64Foto !== "") fields.Fotograf = base64Foto;
+    const btn = document.getElementById('btn-gonder');
+    btn.innerText = "GÖNDERİLİYOR..."; btn.disabled = true;
 
-    const gForm = document.createElement('form');
-    gForm.action = "https://script.google.com/macros/s/AKfycbxd2N1Z7uNG3oTt3zEx8TPBi9ubwa4QgAYzXE4_dpmCDR00r4nigU062WNg4Wi2kqlc/exec";
-    gForm.method = "POST";
-    gForm.style.display = 'none';
+    const formData = new URLSearchParams();
+    formData.append("Makine", currentMakine);
+    formData.append("MakineAdi", (data[currentMakine] && data[currentMakine].ad) || "");
+    formData.append("Personel", document.getElementById('p_name').value);
+    formData.append("Periyot", document.getElementById('pt').value);
+    formData.append("Notlar", document.getElementById('f_notlar').value);
+    if(base64Foto !== "") formData.append("Fotograf", base64Foto);
 
-    Object.keys(fields).forEach(k => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden'; inp.name = k; inp.value = fields[k];
-        gForm.appendChild(inp);
-    });
-    document.querySelectorAll('.ck').forEach(c => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden'; inp.name = 'Yapilan_Islemler'; inp.value = c.value;
-        gForm.appendChild(inp);
-    });
+    document.querySelectorAll('.ck').forEach(c => formData.append("Yapilan_Islemler", c.value));
 
-    document.body.appendChild(gForm);
-    gForm.submit();
+    try {
+        await fetch("https://script.google.com/macros/s/AKfycbxd2N1Z7uNG3oTt3zEx8TPBi9ubwa4QgAYzXE4_dpmCDR00r4nigU062WNg4Wi2kqlc/exec", { method: "POST", body: formData, mode: "no-cors" });
+        alert("✅ Başarıyla Gönderildi!");
+        location.reload();
+    } catch (e) { alert("❌ Hata!"); btn.disabled = false; }
 }
 </script>
 </body>
