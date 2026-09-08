@@ -173,6 +173,7 @@ async function veriyiGonder() {
 
     const formData = new URLSearchParams();
     formData.append("Makine", currentMakine);
+    formData.append("MakineAdi", (data[currentMakine] && data[currentMakine].ad) || "");
     formData.append("Personel", document.getElementById('p_name').value);
     formData.append("Periyot", document.getElementById('pt').value);
     formData.append("Notlar", document.getElementById('f_notlar').value);
