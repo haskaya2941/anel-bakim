@@ -171,49 +171,21 @@ async function veriyiGonder() {
     const btn = document.getElementById('btn-gonder');
     btn.innerText = "GÖNDERİLİYOR..."; btn.disabled = true;
 
-    // NOT: fetch(..., {mode:"no-cors"}) ile POST -- Google Apps Script'in verdigi
-    // 302 yonlendirmesini takip ederken bazi taraycilar govdeyi (Makine, Personel vb.)
-    // kaybediyor, bu da sayfada "Bilinmiyor" olarak gorunmesine yol aciyordu.
-    // Gercek bir <form> + gizli iframe ile gonderince tarayici yonlendirmeyi
-    // normal bir form gonderimi gibi ele aliyor ve veri kaybolmuyor.
-    const fields = {
-        Makine: currentMakine,
-        MakineAdi: (data[currentMakine] && data[currentMakine].ad) || "",
-        Personel: document.getElementById('p_name').value,
-        Periyot: document.getElementById('pt').value,
-        Notlar: document.getElementById('f_notlar').value,
-    };
-    if (base64Foto !== "") fields.Fotograf = base64Foto;
+    const formData = new URLSearchParams();
+    formData.append("Makine", currentMakine);
+    formData.append("MakineAdi", (data[currentMakine] && data[currentMakine].ad) || "");
+    formData.append("Personel", document.getElementById('p_name').value);
+    formData.append("Periyot", document.getElementById('pt').value);
+    formData.append("Notlar", document.getElementById('f_notlar').value);
+    if(base64Foto !== "") formData.append("Fotograf", base64Foto);
 
-    const iframe = document.createElement('iframe');
-    iframe.name = 'gonderim_frame_' + Date.now();
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+    document.querySelectorAll('.ck').forEach(c => formData.append("Yapilan_Islemler", c.value));
 
-    const gForm = document.createElement('form');
-    gForm.action = "https://script.google.com/macros/s/AKfycbxfKOVc8phYzMpJ79rFYSS4ravaXFLSqdlDeze22fsTVehnygybIKcFcZFRqYji4_wj/exec";
-    gForm.method = "POST";
-    gForm.target = iframe.name;
-    gForm.style.display = 'none';
-
-    Object.keys(fields).forEach(k => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden'; inp.name = k; inp.value = fields[k];
-        gForm.appendChild(inp);
-    });
-    document.querySelectorAll('.ck').forEach(c => {
-        const inp = document.createElement('input');
-        inp.type = 'hidden'; inp.name = 'Yapilan_Islemler'; inp.value = c.value;
-        gForm.appendChild(inp);
-    });
-
-    document.body.appendChild(gForm);
-    gForm.submit();
-
-    setTimeout(() => {
+    try {
+        await fetch("https://script.google.com/macros/s/AKfycbxfKOVc8phYzMpJ79rFYSS4ravaXFLSqdlDeze22fsTVehnygybIKcFcZFRqYji4_wj/exec", { method: "POST", body: formData, mode: "no-cors" });
         alert("✅ Başarıyla Gönderildi!");
         location.reload();
-    }, 1200);
+    } catch (e) { alert("❌ Hata!"); btn.disabled = false; }
 }
 </script>
 </body>
