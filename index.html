@@ -157,6 +157,10 @@ function fotoSecildi(event) {
 }
 
 async function veriyiGonder() {
+    if (!currentMakine || !data[currentMakine]) {
+        alert("❌ Geçerli bir makine kodu seçilmedi.");
+        return;
+    }
     const groups = document.querySelectorAll('.item-group');
     let hasError = false;
     groups.forEach(group => {
@@ -182,10 +186,14 @@ async function veriyiGonder() {
     document.querySelectorAll('.ck').forEach(c => formData.append("Yapilan_Islemler", c.value));
 
     try {
-        await fetch("https://script.google.com/macros/s/AKfycbxd2N1Z7uNG3oTt3zEx8TPBi9ubwa4QgAYzXE4_dpmCDR00r4nigU062WNg4Wi2kqlc/exec", { method: "POST", body: formData, mode: "no-cors" });
+        await fetch("https://script.google.com/macros/s/AKfycbxd2N1Z7uNG3oTt3zEx8TPBi9ubwa4QgAYzXE4_dpmCDR00r4nigU062WNg4Wi2kqlc/exec", { method: "POST", body: formData, mode: "no-cors", keepalive: true });
         alert("✅ Başarıyla Gönderildi!");
         location.reload();
-    } catch (e) { alert("❌ Hata!"); btn.disabled = false; }
+    } catch (e) {
+        alert("❌ Gönderim başarısız: " + e.message);
+        btn.disabled = false;
+        btn.innerText = "✅ KAYDI TAMAMLA";
+    }
 }
 </script>
 </body>
