@@ -149,10 +149,28 @@ function fotoSecildi(event) {
     const file = event.target.files[0];
     if (!file) return;
     const imgPreview = document.getElementById('foto-onizleme');
-    imgPreview.style.display = "block";
-    imgPreview.src = URL.createObjectURL(file);
+
     const reader = new FileReader();
-    reader.onload = function(e) { base64Foto = e.target.result.split(',')[1]; };
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const MAKS_KENAR = 1280;
+            let w = img.width, h = img.height;
+            if (w > h && w > MAKS_KENAR) { h = Math.round(h * MAKS_KENAR / w); w = MAKS_KENAR; }
+            else if (h > MAKS_KENAR) { w = Math.round(w * MAKS_KENAR / h); h = MAKS_KENAR; }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+            const sikistirilmis = canvas.toDataURL('image/jpeg', 0.6);
+            base64Foto = sikistirilmis.split(',')[1];
+
+            imgPreview.src = sikistirilmis;
+            imgPreview.style.display = "block";
+        };
+        img.src = e.target.result;
+    };
     reader.readAsDataURL(file);
 }
 
@@ -172,28 +190,33 @@ async function veriyiGonder() {
 
     if(hasError) { alert("🛑 İşaretlenmemiş maddeler var!"); return; }
 
-    const btn = document.getElementById('btn-gonder');
-    btn.innerText = "GÖNDERİLİYOR..."; btn.disabled = true;
+    const fields = {
+        Makine: currentMakine,
+        MakineAdi: (data[currentMakine] && data[currentMakine].ad) || "",
+        Personel: document.getElementById('p_name').value,
+        Periyot: document.getElementById('pt').value,
+        Notlar: document.getElementById('f_notlar').value,
+    };
+    if (base64Foto !== "") fields.Fotograf = base64Foto;
 
-    const formData = new URLSearchParams();
-    formData.append("Makine", currentMakine);
-    formData.append("MakineAdi", (data[currentMakine] && data[currentMakine].ad) || "");
-    formData.append("Personel", document.getElementById('p_name').value);
-    formData.append("Periyot", document.getElementById('pt').value);
-    formData.append("Notlar", document.getElementById('f_notlar').value);
-    if(base64Foto !== "") formData.append("Fotograf", base64Foto);
+    const gForm = document.createElement('form');
+    gForm.action = "https://script.google.com/macros/s/AKfycbxd2N1Z7uNG3oTt3zEx8TPBi9ubwa4QgAYzXE4_dpmCDR00r4nigU062WNg4Wi2kqlc/exec";
+    gForm.method = "POST";
+    gForm.style.display = 'none';
 
-    document.querySelectorAll('.ck').forEach(c => formData.append("Yapilan_Islemler", c.value));
+    Object.keys(fields).forEach(k => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = k; inp.value = fields[k];
+        gForm.appendChild(inp);
+    });
+    document.querySelectorAll('.ck').forEach(c => {
+        const inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'Yapilan_Islemler'; inp.value = c.value;
+        gForm.appendChild(inp);
+    });
 
-    try {
-        await fetch("https://script.google.com/macros/s/AKfycbxd2N1Z7uNG3oTt3zEx8TPBi9ubwa4QgAYzXE4_dpmCDR00r4nigU062WNg4Wi2kqlc/exec", { method: "POST", body: formData, mode: "no-cors", keepalive: true });
-        alert("✅ Başarıyla Gönderildi!");
-        location.reload();
-    } catch (e) {
-        alert("❌ Gönderim başarısız: " + e.message);
-        btn.disabled = false;
-        btn.innerText = "✅ KAYDI TAMAMLA";
-    }
+    document.body.appendChild(gForm);
+    gForm.submit();
 }
 </script>
 </body>
