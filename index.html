@@ -9,7 +9,7 @@
         .header { background: #1a237e; color: white; padding: 20px; text-align: center; }
         .content { padding: 20px; }
         label { display: block; margin-top: 15px; font-weight: 600; color: #37474f; }
-        select, input, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #cfd8dc; font-size: 16px; box-sizing: border-box; }
+        select, input, textarea { width: 100%F; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #cfd8dc; font-size: 16px; box-sizing: border-box; }
         #btn-gonder { width: 100%; padding: 15px; margin-top: 20px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; background: #1a237e; color:white; cursor: pointer; }
         .item-group { margin-top: 15px; background: #e8eaf6; padding: 15px; border-radius: 10px; border-left: 5px solid #1a237e; }
         .item-group.error { border-left: 5px solid #d32f2f; background: #ffebee; }
@@ -191,7 +191,7 @@ async function veriyiGonder() {
     document.body.appendChild(iframe);
 
     const gForm = document.createElement('form');
-    gForm.action = "https://script.google.com/macros/s/AKfycbwrx33HfB40uEvRutW1lIQnAUhgqba45YMIUt_V6K5g9r7aeuTGvr9_KytMXt96TA/exec";
+    gForm.action = "https://script.google.com/macros/s/AKfycbxfKOVc8phYzMpJ79rFYSS4ravaXFLSqdlDeze22fsTVehnygybIKcFcZFRqYji4_wj/exec";
     gForm.method = "POST";
     gForm.target = iframe.name;
     gForm.style.display = 'none';
