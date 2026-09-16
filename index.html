@@ -9,7 +9,7 @@
         .header { background: #1a237e; color: white; padding: 20px; text-align: center; }
         .content { padding: 20px; }
         label { display: block; margin-top: 15px; font-weight: 600; color: #37474f; }
-        select, input, textarea { width: 100%F; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #cfd8dc; font-size: 16px; box-sizing: border-box; }
+        select, input, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 2px solid #cfd8dc; font-size: 16px; box-sizing: border-box; }
         #btn-gonder { width: 100%; padding: 15px; margin-top: 20px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; background: #1a237e; color:white; cursor: pointer; }
         .item-group { margin-top: 15px; background: #e8eaf6; padding: 15px; border-radius: 10px; border-left: 5px solid #1a237e; }
         .item-group.error { border-left: 5px solid #d32f2f; background: #ffebee; }
@@ -183,8 +183,44 @@ function fotoSecildi(event, hedef) {
     reader.readAsDataURL(file);
 }
 
+const EXEC_URL = "https://script.google.com/macros/s/AKfycbyYfmJYiJvXCHzfYa-C9X0O6ps4Go3P34HqN5f_o1LOts_aitbiOos5w8olESXGyLes/exec";
+
+// no-cors ile atılan POST'un cevabı tarayıcı tarafından hiç okunamıyor —
+// bu yüzden "başarılı" olup olmadığını script tag üzerinden (CORS'a takılmayan)
+// ayrı bir JSONP isteğiyle sunucuya sorup gerçekten doğruluyoruz.
+function jsonpGet(url, timeoutMs) {
+    return new Promise(function (resolve, reject) {
+        const cbName = '_qrcb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+        const script = document.createElement('script');
+        function cleanup() { delete window[cbName]; if (script.parentNode) script.parentNode.removeChild(script); }
+        const timer = setTimeout(function () { cleanup(); reject(new Error('timeout')); }, timeoutMs || 8000);
+        window[cbName] = function (payload) { clearTimeout(timer); cleanup(); resolve(payload); };
+        script.onerror = function () { clearTimeout(timer); cleanup(); reject(new Error('script_error')); };
+        script.src = url + (url.indexOf('?') > -1 ? '&' : '?') + 'callback=' + cbName;
+        document.body.appendChild(script);
+    });
+}
+
+async function kayitDogrula(gonderimId) {
+    const bekleSure = [3000, 4000, 5000, 6000, 8000, 10000]; // toplam ~36sn (sunucu kilidi 30sn'ye kadar sürebiliyor)
+    for (let i = 0; i < bekleSure.length; i++) {
+        await new Promise(function (r) { setTimeout(r, bekleSure[i]); });
+        try {
+            const sonuc = await jsonpGet(EXEC_URL + "?action=kontrolEt&id=" + encodeURIComponent(gonderimId), 8000);
+            if (sonuc && sonuc.bulundu) return true;
+        } catch (e) { /* zaman aşımı/ağ hatası — tekrar dene */ }
+    }
+    return false;
+}
+
 async function veriyiGonder() {
+    if (!currentMakine) { alert("⚠️ Geçerli bir makine kodu yok. Lütfen QR kodu tekrar okutun veya kodu elle girin."); return; }
+    const periyotVal = document.getElementById('pt').value;
+    if (!periyotVal) { alert("⚠️ Lütfen bakım periyodunu seçin."); return; }
+
     const groups = document.querySelectorAll('.item-group');
+    if (groups.length === 0) { alert("⚠️ Kontrol maddeleri yüklenemedi, periyodu tekrar seçin."); return; }
+
     let hasError = false;
     groups.forEach(group => {
         const cks = group.querySelectorAll('.ck');
@@ -192,28 +228,46 @@ async function veriyiGonder() {
         if (!allChecked) { group.classList.add('error'); hasError = true; }
         else { group.classList.remove('error'); }
     });
-
-    if(hasError) { alert("🛑 İşaretlenmemiş maddeler var!"); return; }
+    if (hasError) { alert("🛑 İşaretlenmemiş maddeler var!"); return; }
 
     const btn = document.getElementById('btn-gonder');
+    const btnOrijinalMetin = btn.innerText;
     btn.innerText = "GÖNDERİLİYOR..."; btn.disabled = true;
 
+    // Aynı gönderim denemesi (ör. "tekrar dene" ile) hep aynı kimliği kullanır,
+    // böylece sunucu ikinci kez aynı kaydı tekrar oluşturmaz (mükerrer önlenir).
+    if (!window._gonderimId) window._gonderimId = Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    const gonderimId = window._gonderimId;
+
     const formData = new URLSearchParams();
+    formData.append("GonderimId", gonderimId);
     formData.append("Makine", currentMakine);
     formData.append("MakineAdi", (data[currentMakine] && data[currentMakine].ad) || "");
     formData.append("Personel", document.getElementById('p_name').value);
-    formData.append("Periyot", document.getElementById('pt').value);
+    formData.append("Pin", document.getElementById('pass').value);
+    formData.append("Periyot", periyotVal);
     formData.append("Notlar", document.getElementById('f_notlar').value);
-    if(base64FotoForm !== "") formData.append("Fotograf", base64FotoForm);
-    if(base64FotoMakina !== "") formData.append("MakinaFotografi", base64FotoMakina);
-
+    if (base64FotoForm !== "") formData.append("Fotograf", base64FotoForm);
+    if (base64FotoMakina !== "") formData.append("MakinaFotografi", base64FotoMakina);
     document.querySelectorAll('.ck').forEach(c => formData.append("Yapilan_Islemler", c.value));
 
     try {
-        await fetch("https://script.google.com/macros/s/AKfycbyYfmJYiJvXCHzfYa-C9X0O6ps4Go3P34HqN5f_o1LOts_aitbiOos5w8olESXGyLes/exec", { method: "POST", body: formData, mode: "no-cors" });
-        alert("✅ Başarıyla Gönderildi!");
+        await fetch(EXEC_URL, { method: "POST", body: formData, mode: "no-cors" });
+    } catch (e) {
+        alert("❌ Bağlantı hatası, gönderilemedi: " + e.message + "\n\nİnternet bağlantınızı kontrol edip tekrar deneyin. Girdiğiniz not ve fotoğraflar silinmedi.");
+        btn.innerText = btnOrijinalMetin; btn.disabled = false;
+        return;
+    }
+
+    btn.innerText = "KONTROL EDİLİYOR...";
+    const basarili = await kayitDogrula(gonderimId);
+    if (basarili) {
+        alert("✅ Kayıt sunucuda doğrulandı, başarıyla gönderildi!");
         location.reload();
-    } catch (e) { alert("❌ Hata!"); btn.disabled = false; }
+    } else {
+        alert("⚠️ Gönderildi ama sunucuda henüz doğrulanamadı (kimlik/PIN hatalı olabilir ya da bağlantı yavaş).\n\n'TEKRAR DENE' ile yeniden gönderin — aynı kayıt mükerrer oluşturulmaz. Sayfayı kapatmayın, girdikleriniz hâlâ burada.");
+        btn.innerText = "🔁 TEKRAR DENE"; btn.disabled = false;
+    }
 }
 </script>
 </body>
